@@ -1,0 +1,29 @@
+# Scenario for action workflow like a behavioral test
+
+init:
+  actions:
+    - setContext:
+        login: api
+        password: api
+        # baseUrl: https://mobile-backoffice-api.services.staging.fastbooking.io
+        baseUrl: http://localhost:3005
+        persistentHeaders:
+          user-agent: d-edge/1.9
+
+steps:
+  login: # this is the step name
+    label: first login
+    actions:
+      - request:
+          endpoint: /api/authentication/login
+          method: POST
+          body:
+            login: api
+            password: api
+      # - expect:
+      #     response:
+      #       status: 200
+      # - setContext:
+      #     persistentHeaders:
+      #     - authentication: Bearer §get($response, body.token)
+      #       deviceId: Bearer §get($response, body.token)
