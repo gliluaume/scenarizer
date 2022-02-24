@@ -10,6 +10,7 @@ init:
         persistentHeaders:
           user-agent: d-edge/1.9
 
+
 steps:
   login: # this is the step name
     label: first login
@@ -18,8 +19,8 @@ steps:
           endpoint: /api/authentication/login
           method: POST
           body:
-            login: api
-            password: api
+            login: api # §context.login
+            password: api # §context.login
       # - expect:
       #     response:
       #       status: 200
