@@ -9,12 +9,6 @@ export class Context {
     return this.history[this.history.length - 2];
   }
 
-  public lastResult() {
-    return this.history.length > 0
-      ? this.history[this.history.length - 1].result
-      : null;
-  }
-
   constructor() {
     this.history = [];
   }

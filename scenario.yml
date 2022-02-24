@@ -26,5 +26,5 @@ steps:
       #       status: 200
       - setContext:
           persistentHeaders:
-          - authentication: Bearer §previous.result.token
+            authentication: Bearer §previous.result.token
             deviceId: §previous.result.deviceId
