@@ -29,7 +29,7 @@ export class Scenario {
         this.context = await action.handler(this.context, action.payload);
       }
     }
-    // console.log(this.context);
+    console.log(this.context);
     // console.log('\nlast result', this.context.history[this.context.history.length - 1].result);
   }
 }

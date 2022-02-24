@@ -5,11 +5,8 @@ export class Context {
   public persistentHeaders?: HeadersInit;
   public history: HistoryEntry[];
 
-  public setBearer(token: string) {
-    this.persistentHeaders = {
-      ...this.persistentHeaders,
-      ...{ Authorization: `Bearer ${token}` }
-    };
+  public get last() {
+    return this.history[this.history.length - 2];
   }
 
   public lastResult() {
