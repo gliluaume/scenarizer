@@ -5,9 +5,10 @@ export class Scenario {
   public init: Action[];
   public hooks: Hook[];
   public steps: Step[];
-  private context?: Context;
+  private context: Context;
 
   constructor(data: any) {
+    this.context = new Context();
     this.init = data.init.actions.map((action: Object) => new Action(action));
     this.hooks = [];
     this.steps = Object.keys(data.steps).map(
@@ -15,8 +16,7 @@ export class Scenario {
     );
   }
 
-  public async run(context: Context) {
-    this.context = context;
+  public async run() {
     console.log("run initialization");
     for (const action of this.init) {
       this.context = await action.handler(this.context, action.payload);
