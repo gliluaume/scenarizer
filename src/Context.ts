@@ -6,7 +6,7 @@ export class Context {
   public history: HistoryEntry[];
 
   public get last() {
-    return this.history[this.history.length - 2];
+    return this.history[this.history.length - 1];
   }
 
   constructor() {

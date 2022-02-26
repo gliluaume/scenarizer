@@ -15,8 +15,8 @@ export class Client {
     }
 
 
-    // public static readonly knownActions = [ 'setContext', 'request' ];
-    // public setContext(context: Context) {
+    // public static readonly knownActions = [ 'updateContext', 'request' ];
+    // public updateContext(context: Context) {
     //     this.context = {
     //         ...this.context,
     //         ...context,

@@ -2,9 +2,9 @@
 
 init:
   actions:
-    - setContext:
-        # login: api
-        # password: api
+    - updateContext:
+        login: api
+        password: api
         # baseUrl: https://mobile-backoffice-api.services.staging.fastbooking.io
         baseUrl: http://localhost:3005
         persistentHeaders:
@@ -24,7 +24,7 @@ steps:
       # - expect:
       #     response:
       #       status: 200
-      - setContext:
+      - updateContext:
           persistentHeaders:
             authentication: Bearer §previous.result.token
             deviceId: §previous.result.deviceId

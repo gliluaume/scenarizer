@@ -1,3 +1,4 @@
+// deno-lint-ignore-file require-await
 const action1 = async (input: number) => input + 1;
 const action2 = async (input: number) => input + 2;
 
