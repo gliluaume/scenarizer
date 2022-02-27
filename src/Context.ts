@@ -15,11 +15,11 @@ export class Context {
 }
 
 export class HistoryEntry {
-  public label: string;
+  public name: string;
   public payload?: any;
   public result?: any;
-  constructor(label: string, payload?: any, result?: any) {
-    this.label = label;
+  constructor(name: string, payload?: any, result?: any) {
+    this.name = name;
     this.payload = payload;
     this.result = result;
   }

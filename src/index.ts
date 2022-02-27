@@ -4,13 +4,6 @@ import { Scenario } from "./Scenario.ts";
 
 const data = yamlParse(await Deno.readTextFile("scenario.yml")) as any;
 
-// console.log(data)
-
 const scenario = new Scenario(data);
-scenario.run();
-// console.log('scenario', scenario)
-
-// const client = new Client(scenario);
-// client.run();
-// console.log('client', client)
-
+await scenario.run();
+console.log("\nrun end\n", scenario);

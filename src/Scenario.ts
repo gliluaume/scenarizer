@@ -1,16 +1,18 @@
 import { ActionFnWithContext, actions } from "./actions.ts";
-import { Context } from "./Context.ts";
+import { Context, HistoryEntry } from "./Context.ts";
 
 export class Scenario {
   public init: Action[];
-  public hooks: Hook[];
+  public requestHook?: RequestHook;
   public steps: Step[];
   private context: Context;
 
   constructor(data: any) {
     this.context = new Context();
     this.init = data.init.actions.map((action: Object) => new Action(action));
-    this.hooks = [];
+    this.requestHook = data.requestHook
+      ? new RequestHook(data.requestHook)
+      : undefined;
     this.steps = Object.keys(data.steps).map(
       (name: string) => new Step(name, data.steps[name])
     );
@@ -19,18 +21,33 @@ export class Scenario {
   public async run() {
     console.log("run initialization");
     for (const action of this.init) {
-      this.context = await action.handler(this.context, action.payload);
+      await this.runAction(action);
     }
 
     for (const step of this.steps) {
       console.log(`Running step ${step.label}`);
       for (const action of step.actions) {
-        console.log("action", action.handler.name);
-        this.context = await action.handler(this.context, action.payload);
+        await this.runAction(action);
       }
     }
-    console.log('\nrun end\n',this.context);
-    // console.log('\nlast result', this.context.history[this.context.history.length - 1].result);
+  }
+
+  private async runAction(action: Action) {
+    const response = await action.handler(this.context, action.payload);
+
+    if (this.requestHook && response.result) {
+      if (response.result.status === this.requestHook.status) {
+        this.runAction(this.requestHook.action)
+      }
+    }
+
+    if (response.context) {
+      this.context = response.context;
+    }
+
+    this.context.history.push(
+      new HistoryEntry(action.name, action.payload, response.result)
+    );
   }
 }
 
@@ -45,11 +62,17 @@ export class Step {
   }
 }
 
-export class Hook /*extends Step*/ {
-  public trigger: string;
-  constructor() {
-    // super(label);
-    this.trigger = "";
+export class RequestHook {
+  public status: number;
+  public action: Action;
+  public replay: boolean;
+
+  // constructor(status: number, criteria: string, action: any) {
+  constructor(data: any) {
+    this.status = data.status;
+    // this.criteria = new Function(`() => (criteria)`)
+    this.action = new Action(data.action);
+    this.replay = !!data?.replay;
   }
 }
 
@@ -57,6 +80,9 @@ export class Action {
   public handler: ActionFnWithContext;
   public payload: Object;
   public context?: Context;
+  public get name() {
+    return this.handler.name;
+  }
 
   constructor(data: any) {
     if (Object.keys(data).length !== 1) {

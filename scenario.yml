@@ -9,7 +9,17 @@ init:
         baseUrl: http://localhost:3005
         persistentHeaders:
           user-agent: d-edge/1.9
-
+requestHook:
+  status: 401
+  replay: true
+    # criteria: $current.result.errorCode === 'TokenNeedsRefresh'
+  action:
+    request:
+      endpoint: /api/authentication/refresh
+      method: POST
+      body:
+        login: api # §context.login
+        password: api # §context.login
 
 steps:
   login: # this is the step name
@@ -26,5 +36,11 @@ steps:
       #       status: 200
       - updateContext:
           persistentHeaders:
-            authentication: Bearer §previous.result.token
-            deviceId: §previous.result.deviceId
+            authentication: Bearer §previous.result.body.token
+            deviceId: §previous.result.body.deviceId
+  testhook:
+    label: test how hook works
+    actions:
+      - request:
+          endpoint: /api/entity
+          method: GET
