@@ -3,8 +3,8 @@ import {
   merge,
   pick,
 } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
-import { Context, HistoryEntry } from "./Context.ts";
-import { applyMacros, KvList, KVvalue } from "./macros.ts";
+import { Context } from "./Context.ts";
+import { applyMacros, KvList } from "./macros.ts";
 
 export type ActionFnWithContext = (
   context: Context,
@@ -44,7 +44,8 @@ async function request(
   const response = await fetch(context.baseUrl + endpoint, init);
   const body = await response.json();
 
-  const result = merge(pick(response, "status", "headers"), { body });
+  // const result = merge(pick(response, "status", "headers"), { body });
+  const result = merge(pick(response, "status"), { body });
 
   return { result, context };
 }

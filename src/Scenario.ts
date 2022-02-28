@@ -19,35 +19,41 @@ export class Scenario {
   }
 
   public async run() {
-    console.log("run initialization");
-    for (const action of this.init) {
-      await this.runAction(action);
-    }
-
+    console.log("Run initialization");
+    await this.runActions(this.init);
     for (const step of this.steps) {
       console.log(`Running step ${step.label}`);
-      for (const action of step.actions) {
-        await this.runAction(action);
-      }
+      await this.runActions(step.actions);
+    }
+  }
+
+  private async runActions(actions: Action[]) {
+    for (const action of actions) {
+      await this.runAction(action);
     }
   }
 
   private async runAction(action: Action) {
+    console.log('action', action.name, action?.payload?.endpoint)
     const response = await action.handler(this.context, action.payload);
+    this.context.history.push(new HistoryEntry(action, response.result));
 
-    if (this.requestHook && response.result) {
-      if (response.result.status === this.requestHook.status) {
-        this.runAction(this.requestHook.action)
-      }
+    if (
+      this.requestHook &&
+      !this.requestHook.disabled &&
+      response.result &&
+      response.result.status === this.requestHook.status
+    ) {
+      const actionsFromHook = this.requestHook.replay
+        ? [this.requestHook.action, action]
+        : [this.requestHook.action];
+      this.requestHook.run++;
+      await this.runActions(actionsFromHook);
     }
 
     if (response.context) {
       this.context = response.context;
     }
-
-    this.context.history.push(
-      new HistoryEntry(action.name, action.payload, response.result)
-    );
   }
 }
 
@@ -67,8 +73,26 @@ export class RequestHook {
   public action: Action;
   public replay: boolean;
 
+  private _disabled: boolean;
+  private _maxRun: number;
+  private _run: number;
+
+  public get run() { return this._run; }
+  public set run(val) {
+    this._run = Math.min(val, this._maxRun);
+    if (this._run === this._maxRun) {
+      this._disabled = true;
+    }
+  }
+  public get disabled() {
+    return this._disabled;
+  }
+
   // constructor(status: number, criteria: string, action: any) {
   constructor(data: any) {
+    this._disabled = false;
+    this._maxRun = 3;
+    this._run = 0;
     this.status = data.status;
     // this.criteria = new Function(`() => (criteria)`)
     this.action = new Action(data.action);
@@ -78,8 +102,7 @@ export class RequestHook {
 
 export class Action {
   public handler: ActionFnWithContext;
-  public payload: Object;
-  public context?: Context;
+  public payload: any;
   public get name() {
     return this.handler.name;
   }

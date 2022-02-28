@@ -1,4 +1,8 @@
-import { cloneDeep, get, set } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
+import {
+  cloneDeep,
+  get,
+  set,
+} from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 import { Context } from "./Context.ts";
 
 export type macro = (context: Context, ...values: any[]) => any;
@@ -16,7 +20,7 @@ export type KVvalue = boolean | string | number | KvList;
 export type KvList = { [key: string]: boolean | string | number | KvList };
 
 export function applyMacros(data: KvList, context: Context) {
-  const newData = cloneDeep(data)
+  const newData = cloneDeep(data);
   const macs = searchForMacros(newData);
   if (macs) {
     (macs as macroDescriptor[]).forEach((mac: macroDescriptor) => {

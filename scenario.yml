@@ -31,9 +31,8 @@ steps:
           body:
             login: api # §context.login
             password: api # §context.login
-      # - expect:
-      #     response:
-      #       status: 200
+          # expect:
+          #   status: 200
       - updateContext:
           persistentHeaders:
             authentication: Bearer §previous.result.body.token

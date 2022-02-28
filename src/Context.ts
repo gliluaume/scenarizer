@@ -1,3 +1,5 @@
+import { Action } from "./Scenario.ts";
+
 export class Context {
   public baseUrl?: string;
   public login?: string;
@@ -15,12 +17,10 @@ export class Context {
 }
 
 export class HistoryEntry {
-  public name: string;
-  public payload?: any;
+  public action: Action;
   public result?: any;
-  constructor(name: string, payload?: any, result?: any) {
-    this.name = name;
-    this.payload = payload;
+  constructor(action: Action, result?: any) {
+    this.action = action;
     this.result = result;
   }
 }

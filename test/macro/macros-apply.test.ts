@@ -1,14 +1,17 @@
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
-import { cloneDeep, } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
+import { cloneDeep } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 import { Context, HistoryEntry } from "../../src/Context.ts";
 import { applyMacros } from "../../src/macros.ts";
+import { Action } from "../../src/Scenario.ts";
 
 Deno.test("applyMacros simple", () => {
   const context = Object.assign(new Context(), {
     persistentHeaders: {
       "user-agent": "d-edge/1.9",
     },
-    history: [new HistoryEntry("init", null, { token: "MyToken" })],
+    history: [
+      new HistoryEntry(new Action({ updateContext: {} }), { token: "MyToken" }),
+    ],
   });
   const data = {
     persistentHeaders: {
