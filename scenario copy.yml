@@ -30,19 +30,15 @@ steps:
           body:
             login: §context.login
             password: §context.password
+          # expect:
+          #   status: 200
       - updateContext:
           persistentHeaders:
-            authorization: Bearer §previous.result.body.token
+            authentication: Bearer §previous.result.body.token
             deviceId: §previous.result.body.deviceId
-  deep-health:
-    label: Deep health
+  testhook:
+    label: test how hook works
     actions:
       - request:
-          endpoint: /health
-          method: GET
-  home-hotel:
-    label: Home page
-    actions:
-      - request:
-          endpoint: /api/home/hotel
+          endpoint: /api/entity
           method: GET

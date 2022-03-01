@@ -6,3 +6,4 @@ const data = yamlParse(await Deno.readTextFile("scenario.yml")) as any;
 
 const scenario = new Scenario(data);
 await scenario.run();
+// console.log(JSON.stringify(scenario, null, ' '))

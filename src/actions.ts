@@ -1,3 +1,4 @@
+import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 import {
   cloneDeep,
   merge,
@@ -8,7 +9,7 @@ import { applyMacros, KvList } from "./macros.ts";
 
 export type ActionFnWithContext = (
   context: Context,
-  payload: any,
+  payload: any
 ) => Promise<ActionResponse>;
 
 export type ActionFn = (payload: Object) => Object;
@@ -25,7 +26,7 @@ export const actions: Map<string, ActionFnWithContext> = new Map([
 
 async function request(
   context: Context,
-  { endpoint, ...config }: any,
+  { endpoint, ...config }: any
 ): Promise<ActionResponse> {
   const headers = new Headers(context.persistentHeaders);
   if (config.headers) {
@@ -41,8 +42,19 @@ async function request(
     });
   }
 
+
   const response = await fetch(context.baseUrl + endpoint, init);
-  const body = await response.json();
+
+  if (response.status !== (config.status || 200)) {
+    assertEquals(response.status, config.status || 200, endpoint);
+  }
+
+  const contentType = response.headers.get("content-type");
+  const body = contentType?.includes("application/json")
+    ? await response.json()
+    : await response.text();
+
+
 
   // const result = merge(pick(response, "status", "headers"), { body });
   const result = merge(pick(response, "status"), { body });

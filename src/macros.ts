@@ -9,11 +9,16 @@ export type macro = (context: Context, ...values: any[]) => any;
 
 export const macros: Map<string, macro> = new Map([
   ["§previous", _getPrevious],
+  ["§context", _getInContext],
 ]);
 
 // Get value in previous action with given path, searching in context.history
 function _getPrevious(context: Context, path: string): any {
   return get(context.last, path);
+}
+
+function _getInContext(context: Context, path: string): any {
+  return get(context, path);
 }
 
 export type KVvalue = boolean | string | number | KvList;

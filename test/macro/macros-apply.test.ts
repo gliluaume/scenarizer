@@ -31,3 +31,26 @@ Deno.test("applyMacros simple", () => {
     },
   });
 });
+
+Deno.test("applyMacros §context", () => {
+  const context = Object.assign(new Context(), {
+    login: "admin",
+    persistentHeaders: {
+      "user-agent": "d-edge/1.9",
+    },
+    history: [],
+  });
+  const data = {
+    expectLogin: "§context.login",
+  };
+  const contextCpy = cloneDeep(context);
+  const dataCpy = cloneDeep(data);
+
+  const actual = applyMacros(data, context);
+
+  assertEquals(context, contextCpy);
+  assertEquals(data, dataCpy);
+  assertEquals(actual, {
+    expectLogin: "admin",
+  });
+});

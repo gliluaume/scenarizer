@@ -1,5 +1,6 @@
 import { ActionFnWithContext, actions } from "./actions.ts";
 import { Context, HistoryEntry } from "./Context.ts";
+import { applyMacros, KvList } from "./macros.ts";
 
 export class Scenario {
   public init: Action[];
@@ -34,6 +35,7 @@ export class Scenario {
   }
 
   private async runAction(action: Action) {
+    action = applyMacros(action as unknown as KvList, this.context);
     console.log('action', action.name, action?.payload?.endpoint)
     const response = await action.handler(this.context, action.payload);
     this.context.history.push(new HistoryEntry(action, response.result));
