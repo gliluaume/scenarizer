@@ -45,8 +45,9 @@ async function request(
 
   const response = await fetch(context.baseUrl + endpoint, init);
 
-  if (response.status !== (config.status || 200)) {
-    assertEquals(response.status, config.status || 200, endpoint);
+  const wrappedStatus = config?.expect?.status || 200;
+  if (response.status !== wrappedStatus) {
+    assertEquals(response.status, wrappedStatus, endpoint);
   }
 
   const contentType = response.headers.get("content-type");

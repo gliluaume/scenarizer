@@ -30,6 +30,8 @@ steps:
           body:
             login: §context.login
             password: §context.password
+          expect:
+            status: 200
       - updateContext:
           persistentHeaders:
             authorization: Bearer §previous.result.body.token
