@@ -31,7 +31,9 @@ export function applyMacros(data: KvList, context: Context) {
     (macs as macroDescriptor[]).forEach((mac: macroDescriptor) => {
       const fn = macros.get(mac.macroName) as macro;
       const macroResult = fn(context, mac.path);
-      const regexp = new RegExp(`${mac.macroName}\\S*`);
+      const substring = [mac.macroName, mac.path].join(".")
+      const regexp = new RegExp(substring);
+
       const replaced = get(newData, mac.contextPath.join(".")).replace(
         regexp,
         macroResult
@@ -77,7 +79,7 @@ export function searchForMacros(
 }
 
 function subSearch(macroName: string, candidate: string): string | false {
-  const regexp = new RegExp(`${macroName}.(?<path>(\\w+\.?)+)`);
+  const regexp = new RegExp(`${macroName}.(?<path>(\\w+\\.?)+)\.*`);
   const match = regexp.exec(candidate);
   return match?.groups?.path || false;
 }
