@@ -8,17 +8,18 @@ function saurus() {
 
     help="\nUsage:\n\t$0 <$ALLOWED_CMDS>\n"
 
-    if [[ $# -ne 1 ]]
+    if [[ $# -lt 1 ]]
     then
-        echo "Exactly one argument expected. Usage:"
+        echo "Command name expected. Usage:"
         echo -e $help
         return 1
     fi
 
     command=$1
+    shift
     case "$command" in
         run)
-            $DENO_CMD run --allow-read --allow-net src/index.ts
+            $DENO_CMD run --allow-read --allow-net src/index.ts $*
         ;;
         test)
             $DENO_CMD test
