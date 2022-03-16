@@ -38,6 +38,7 @@ export function applyMacros(data: KvList, context: Context) {
         regexp,
         macroResult
       );
+
       set(newData, mac.contextPath.join("."), replaced);
     });
   }

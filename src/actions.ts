@@ -36,6 +36,7 @@ async function request(
   }
   const method = config.method.toLocaleUpperCase();
   const init: RequestInit = { headers, method };
+
   if (config.body) {
     init.body = new Blob([JSON.stringify(config.body)], {
       type: "application/json",
@@ -47,6 +48,7 @@ async function request(
 
   const wrappedStatus = config?.expect?.status || 200;
   if (response.status !== wrappedStatus) {
+    console.log(await response.json())
     assertEquals(response.status, wrappedStatus, endpoint);
   }
 

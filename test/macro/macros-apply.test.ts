@@ -54,3 +54,39 @@ Deno.test("applyMacros §context", () => {
     expectLogin: "admin",
   });
 });
+
+[
+  {
+    template: "My name is '§context.entry' and I like it.",
+    value: "michel",
+    expected: "My name is 'michel' and I like it.",
+    tag: "quoted",
+  },
+  {
+    template: "/api/§context.entry/12EFD",
+    value: "entity",
+    expected: "/api/entity/12EFD",
+    tag: "route like",
+  },
+].forEach((t) => {
+  Deno.test(`applyMacros replacement: ${t.tag}`, () => {
+    const context = Object.assign(new Context(), {
+      entry: t.value,
+    });
+    console.log(t);
+    console.log(context);
+    const data = {
+      entry: t.template,
+    };
+    const contextCpy = cloneDeep(context);
+    const dataCpy = cloneDeep(data);
+
+    const actual = applyMacros(data, context);
+
+    assertEquals(context, contextCpy);
+    assertEquals(data, dataCpy);
+    assertEquals(actual, {
+      entry: t.expected,
+    });
+  });
+});
