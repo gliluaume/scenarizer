@@ -48,7 +48,7 @@ async function request(
 
   const wrappedStatus = config?.expect?.status || 200;
   if (response.status !== wrappedStatus) {
-    console.log(await response.json())
+    console.log(JSON.stringify(await response.json(), null, 2))
     assertEquals(response.status, wrappedStatus, endpoint);
   }
 
