@@ -26,3 +26,5 @@ try {
 const data = yamlParse(fileContent) as any;
 const scenario = new Scenario(data);
 await scenario.run();
+
+// console.log(JSON.stringify(scenario.data, null, " "));

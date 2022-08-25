@@ -8,6 +8,30 @@ export class Scenario {
   public steps: Step[];
   private context: Context;
 
+  public get data() {
+    return this.hideSensitive(this.context);
+  }
+
+  private hideSensitive(data: any): any {
+    const sensitives = /authori[sz]ation/i;
+    const hide = "[REDACTED]";
+    if (
+        data === null
+        || typeof data === 'string'
+        || Object.keys(data).length === 0
+        || Array.isArray(data)
+    ) {
+        return data;
+    }
+    return Object.keys(data).reduce((filtered, key) => {
+        filtered[key] = sensitives.exec(key)
+          ? hide
+          : this.hideSensitive(data[key]);
+
+        return filtered;
+      }, {} as any);
+  }
+
   constructor(data: any) {
     this.context = new Context();
     this.init = data.init.actions.map((action: Object) => new Action(action));
@@ -36,7 +60,7 @@ export class Scenario {
 
   private async runAction(action: Action) {
     action = applyMacros(action as unknown as KvList, this.context);
-    console.log('action', action.name, action?.payload?.endpoint || '')
+    console.log("action", action.name, action?.payload?.endpoint || "");
     const response = await action.handler(this.context, action.payload);
     this.context.history.push(new HistoryEntry(action, response.result));
 
@@ -79,7 +103,9 @@ export class RequestHook {
   private _maxRun: number;
   private _run: number;
 
-  public get run() { return this._run; }
+  public get run() {
+    return this._run;
+  }
   public set run(val) {
     this._run = Math.min(val, this._maxRun);
     if (this._run === this._maxRun) {
