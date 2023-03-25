@@ -43,26 +43,40 @@ async function request(
     });
   }
 
-
   const response = await fetch(context.baseUrl + endpoint, init);
 
+  // Check status
   const wrappedStatus = config?.expect?.status || 200;
   if (response.status !== wrappedStatus) {
-    console.log(JSON.stringify(await response.json(), null, 2))
     assertEquals(response.status, wrappedStatus, endpoint);
   }
 
+  // Check headers
+  if (config?.expect?.headers) {
+    for (let [k, v] of Object.entries(config.expect.headers)) {
+      assertEquals(response.headers.get(k), v.toString());
+    }
+  }
+
   const contentType = response.headers.get("content-type");
-  const body = contentType?.includes("application/json")
-    ? await response.json()
-    : await response.text();
+  const isJson = contentType?.includes("application/json");
+  const body = isJson ? await response.json() : await response.text();
 
+  // Check body
+  if (config?.expect?.body) {
+    const expectedBody = isJson
+      ? JSON.parse(config.expect.body)
+      : config.expect.body;
+    assertEquals(body, expectedBody);
+  }
 
-
-  // const result = merge(pick(response, "status", "headers"), { body });
   const result = merge(pick(response, "status"), { body });
 
   return { result, context };
+}
+
+function assertJsObject(actual, expected) {
+  assertEquals(ac);
 }
 
 // deno-lint-ignore require-await

@@ -1,11 +1,41 @@
-# Tool for functional REST API testing
+# Scenarizer
+<!-- vscode-markdown-toc -->
+* 1. [Usage](#Usage)
+* 2. [Overview](#Overview)
+	* 2.1. [Init](#Init)
+	* 2.2. [Actions](#Actions)
+		* 2.2.1. [Request Action](#RequestAction)
+		* 2.2.2. [Update context Action](#UpdatecontextAction)
+* 3. [Example](#Example)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc --># Scenarizer
+
+
+
 This tools supports only HTTP APIs that handle JSON messages.
 
-This is useful to handle a sequential set of requests and make some assertions on what is expected as response.
+This is useful to handle a sequential set of requests and make exhaustive assertions on what is expected as response.
 
 It fails on first unexpected error or on failed expectation.
 
-## Overview
+Features overview:
+- compare actual and expected on status code, headers and body
+- behave like an stateful HTTP client
+- hooks on responses: launch actions on response criteria, re-run previous request
+
+
+
+##  1. <a name='Usage'></a>Usage
+run
+```
+❯ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\buckets.yml
+```
+
+##  2. <a name='Overview'></a>Overview
 
 A scenario is a set of elements:
 - init: a special action run at startup
@@ -17,26 +47,33 @@ Macros are special keywords:
 - `§context`: to access to the context (eg. `§context.login` is a shortcut to the login set in the scenario's context)
 - `§previous`: a shortcut to access the previous step in the history of results
 
-### Init
+###  2.1. <a name='Init'></a>Init
 
 This is the first step of a scenario.
 
-### Actions
+###  2.2. <a name='Actions'></a>Actions
 Types of actions:
 - request: make an HTTP request
 - updateContext: update the context of the scenarion (eg: update JWT)
 
 
-#### Request Action
+####  2.2.1. <a name='RequestAction'></a>Request Action
 
-A function which process a `fetch` (from Deno, same as browser's or node's fetch function) adding expectations on the response.
+A function which processes a `fetch` (from Deno, same as browser's or node's fetch function) adding expectations on the response.
 
-#### Update context Action
+##### Expectations
+- status: checks the http status code
+- body: check strict equality. JS Object is compared if `Content-Type` header has `application/json`, string comparison otherwise
+- headers: takes an object and checks if each expected header name contains described values. This implies:
+  - if expected header is missing or has bad value, error is thrown
+  - if actual response has additional headers in comparison to expected headers, no error is thrown
+
+####  2.2.2. <a name='UpdatecontextAction'></a>Update context Action
 
 Just sets values in the context.
 
 
-## Example
+##  3. <a name='Example'></a>Example
 ```yaml
 init:
   actions:
@@ -58,7 +95,7 @@ requestHook:
         password: §context.password
 
 steps:
-  login: # this is the step name
+  login:
     label: first login
     actions:
       - request:
@@ -79,10 +116,20 @@ steps:
       - request:
           endpoint: /health
           method: GET
-  home-hotel:
-    label: Home page
+  stuffs:
+    label: Fetching single stuff
     actions:
       - request:
-          endpoint: /api/home/hotel
+          endpoint: /api/stuffs/7610cafc-8037-404c-b498-5255b6bc7c52
           method: GET
+          expect:
+            status: 200
+            headers:
+              x-my-custom-data: "a value"
+            body: |
+              {
+                "id": "7610cafc-8037-404c-b498-5255b6bc7c52",
+                "name": "first-one",
+                "type": "stuff-a",
+              }
 ```
