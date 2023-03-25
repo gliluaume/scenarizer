@@ -12,13 +12,9 @@
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc --># Scenarizer
+<!-- /vscode-markdown-toc -->
 
-
-
-This tools supports only HTTP APIs that handle JSON messages.
-
-This is useful to handle a sequential set of requests and make exhaustive assertions on what is expected as response.
+Useful to handle a sequential set of requests and make exhaustive assertions on what is expected as response.
 
 It fails on first unexpected error or on failed expectation.
 
@@ -27,7 +23,7 @@ Features overview:
 - behave like an stateful HTTP client
 - hooks on responses: launch actions on response criteria, re-run previous request
 
-
+Supports only HTTP APIs that handle JSON messages.
 
 ##  1. <a name='Usage'></a>Usage
 run
