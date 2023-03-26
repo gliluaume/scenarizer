@@ -6,13 +6,11 @@ const printUsage = (exitError = true) => {
   const text =
     "Usage: deno run --allow-read --allow-net src/index.ts <filename>";
   (exitError ? console.error : console.info)(text);
-  if (exitError) {
-    Deno.exit(1);
-  }
+  Deno.exit(exitError ? 1 : 0);
 };
 
-if (Deno.args.length !== 1) {
-  printUsage();
+if (Deno.args.length !== 1 || [ '-h', '--help' ].includes(Deno.args[0])) {
+  printUsage(Deno.args.length !== 1);
 }
 
 let fileContent = "";
