@@ -35,6 +35,23 @@ run
 ❯ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\buckets.yml
 ```
 
+Deployment (no Ci for now):
+manual tag
+```
+git tag X.Y.Z && git push-tags
+```
+
+build docker image:
+```
+docker build --tag gliluaume/scenarizer:X.Y.Z .
+```
+
+publish docker image
+```
+docker login
+docker push gliluaume/scenarizer:X.Y.Z
+```
+
 ##  2. <a name='Overview'></a>Overview
 
 A scenario is a set of elements:
@@ -60,6 +77,11 @@ Types of actions:
 ####  2.2.1. <a name='RequestAction'></a>Request Action
 
 A function which processes a `fetch` (from Deno, same as browser's or node's fetch function) adding expectations on the response.
+Takes:
+- method: GET, PUT, POST, PATCH, DELETE, etc.
+- endpoint: the path to be combined with context's base URL. Can include query param
+- query: an object to be parsed as query parameters
+- body: request payload. If a string is passed passed as is, if object is passed it will be stringified before sending
 
 ##### Expectations
 - status: checks the http status code
@@ -105,7 +127,7 @@ steps:
             login: §context.login
             password: §context.password
           expect:
-            status: 200
+            status: 201
       - updateContext:
           persistentHeaders:
             authorization: Bearer §previous.result.body.token
@@ -116,7 +138,7 @@ steps:
       - request:
           endpoint: /health
           method: GET
-  stuffs:
+  stuff:
     label: Fetching single stuff
     actions:
       - request:
@@ -132,4 +154,18 @@ steps:
                 "name": "first-one",
                 "type": "stuff-a",
               }
+  stuffs:
+    label: Fetching multiple stuffs
+    actions:
+      - request:
+          endpoint: /api/stuffs/
+          query:
+            type: flower
+          method: GET
+          expect:
+            status: 200
+            headers:
+              x-my-custom-data: "a value"
+            body: |
+              []
 ```

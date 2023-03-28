@@ -38,12 +38,16 @@ async function request(
   const init: RequestInit = { headers, method };
 
   if (config.body) {
-    init.body = new Blob([JSON.stringify(config.body)], {
+    const bodyStr =
+      typeof config.body === 'string' ? config.body : JSON.stringify(config.body);
+    init.body = new Blob([bodyStr], {
       type: "application/json",
     });
   }
 
-  const response = await fetch(context.baseUrl + endpoint, init);
+  const fullUrl = buildUrl(context.baseUrl, endpoint, config.query);
+
+  const response = await fetch(fullUrl, init);
 
   // Check status
   const wrappedStatus = config?.expect?.status || 200;
@@ -54,7 +58,11 @@ async function request(
   // Check headers
   if (config?.expect?.headers) {
     for (let [k, v] of Object.entries(config.expect.headers)) {
-      assertEquals(response.headers.get(k), v.toString());
+      assertEquals(
+        response.headers.get(k),
+        v.toString(),
+        `header ${k} does not match expected`
+      );
     }
   }
 
@@ -75,9 +83,21 @@ async function request(
   return { result, context };
 }
 
-function assertJsObject(actual, expected) {
-  assertEquals(ac);
+
+const buildUrl = (baseUrl, endpoint, query) => {
+  const url = new URL(endpoint, baseUrl);
+  if (query) {
+    for (let [k, v] of Object.entries(query)) {
+      url.searchParams.append(k, v);
+    }
+  }
+  return url.toString();
 }
+// const asObject = (input: object | string) => {
+//   if (typeof input === 'object') return input;
+//   if (typeof input === 'string') return JSON.parse(input)
+//   throw new Error("invalid input. Expected string or object");
+// }
 
 // deno-lint-ignore require-await
 async function updateContext(
