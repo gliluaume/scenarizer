@@ -1,5 +1,10 @@
 FROM denoland/deno:1.32.1
 
+RUN echo '#!/bin/bash\n\ndeno run --allow-read --allow-net --unsafely-ignore-certificate-errors /app/index.ts $*' > /bin/scz
+RUN chmod +x /bin/scz
+
+# RUN echo 'alias scz="deno run --allow-read --allow-net --unsafely-ignore-certificate-errors /app/index.ts"' > /home/.bashrc
+
 WORKDIR /app
 
 # Prefer not to run as root.
@@ -19,8 +24,8 @@ RUN deno cache index.ts
 
 WORKDIR /scenarios
 # Bash
-# docker run --init -it -v $PWD:/scenarios gliluaume/scenarizer:latest
+# docker run --init -it -v $PWD:/scenarios gliluaume/scenarizer:latest scz file.yml
 # Powershell
-# docker run --init -it -v "$(pwd):/scenarios" gliluaume/scenarizer:latest
-ENTRYPOINT ["deno", "run", "--allow-read", "--allow-net", "--unsafely-ignore-certificate-errors", "/app/index.ts"]
-CMD ["-h"]
+# docker run --init -it -v "$(pwd):/scenarios" gliluaume/scenarizer:latest scz file.yml
+
+CMD ["scz"]
