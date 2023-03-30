@@ -46,7 +46,7 @@ async function request(
     });
   }
 
-  const fullUrl = buildUrl(context.baseUrl, endpoint, config.query);
+  const fullUrl = buildUrl(context.baseUrl!, endpoint, config.query);
 
   const response = await fetch(fullUrl, init);
 
@@ -64,8 +64,8 @@ async function request(
   // Check headers
   if (config?.expect?.headers) {
     for (let [k, v] of Object.entries(config.expect.headers)) {
-      const actual = response.headers.get(k);
-      const expected = v.toString();
+      const actual = response.headers.get(k) as string;
+      const expected = (v as object).toString();
       assertEquals(
         actual,
         expected,
@@ -91,7 +91,7 @@ async function request(
   return { result, context };
 }
 
-const formatScalarError = (heading, endpoint, actual, expected) => {
+const formatScalarError = (heading: string, endpoint: string, actual: string | number, expected: string | number) => {
   return `${heading} ${C.bold}${endpoint}${C.reset}: `+
   `(actual) ${C.bold}${C.red}${actual}${C.reset} != `+
   `${C.bold}${C.green}${expected}${C.reset} (expected)`;
@@ -99,11 +99,11 @@ const formatScalarError = (heading, endpoint, actual, expected) => {
 const formatStatusError = formatScalarError.bind(null, 'status')
 const formatHeaderError = formatScalarError.bind(null, 'header')
 
-const buildUrl = (baseUrl, endpoint, query) => {
+const buildUrl = (baseUrl: string, endpoint: string, query: KvList) => {
   const url = new URL(endpoint, baseUrl);
   if (query) {
     for (let [k, v] of Object.entries(query)) {
-      url.searchParams.append(k, v);
+      url.searchParams.append(k, v as string);
     }
   }
   return url.toString();
