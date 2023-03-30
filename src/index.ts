@@ -23,6 +23,13 @@ try {
 
 const data = yamlParse(fileContent) as any;
 const scenario = new Scenario(data);
-await scenario.run();
+try {
+  await scenario.run();
+  console.warn('\n%cTest %csuccess!', 'font-weight: bold', 'color: green; font-weight: bold')
+} catch(e) {
+  console.error(e.message);
+  console.warn('\n%cTest suite %cfailed!', 'font-weight: bold', 'color: red; font-weight: bold')
+  Deno.exit(100);
+}
 
 // console.log(JSON.stringify(scenario.data, null, " "));

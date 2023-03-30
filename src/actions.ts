@@ -6,6 +6,7 @@ import {
 } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 import { Context } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
+import { C } from "./formatting.ts";
 
 export type ActionFnWithContext = (
   context: Context,
@@ -51,17 +52,25 @@ async function request(
 
   // Check status
   const wrappedStatus = config?.expect?.status || 200;
+
   if (response.status !== wrappedStatus) {
-    assertEquals(response.status, wrappedStatus, endpoint);
+    assertEquals(
+      response.status,
+      wrappedStatus,
+      formatStatusError(endpoint, response.status, wrappedStatus)
+    );
   }
 
   // Check headers
   if (config?.expect?.headers) {
     for (let [k, v] of Object.entries(config.expect.headers)) {
+      const actual = response.headers.get(k);
+      const expected = v.toString();
       assertEquals(
-        response.headers.get(k),
-        v.toString(),
-        `header ${k} does not match expected`
+        actual,
+        expected,
+        formatHeaderError(k, actual, expected)
+        // `header ${C.bold}${k}${C.reset}: (actual) ${C.bold}${C.red}${actual || '<null>'}${C.reset} != ${C.bold}${C.green}${expected}${C.reset} (expected)`
       );
     }
   }
@@ -83,6 +92,14 @@ async function request(
   return { result, context };
 }
 
+const formatScalarError = (heading, endpoint, actual, expected) => {
+  // `received ${C.bold}${C.red}${response.status}${C.reset} while calling ${endpoint}`
+  return `${heading} ${C.bold}${endpoint}${C.reset}: `+
+  `(actual) ${C.bold}${C.red}${actual}${C.reset} != `+
+  `${C.bold}${C.green}${expected}${C.reset} (expected)`;
+}
+const formatStatusError = formatScalarError.bind(null, 'status')
+const formatHeaderError = formatScalarError.bind(null, 'header')
 
 const buildUrl = (baseUrl, endpoint, query) => {
   const url = new URL(endpoint, baseUrl);
