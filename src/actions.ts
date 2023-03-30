@@ -108,11 +108,6 @@ const buildUrl = (baseUrl: string, endpoint: string, query: KvList) => {
   }
   return url.toString();
 }
-// const asObject = (input: object | string) => {
-//   if (typeof input === 'object') return input;
-//   if (typeof input === 'string') return JSON.parse(input)
-//   throw new Error("invalid input. Expected string or object");
-// }
 
 // deno-lint-ignore require-await
 async function updateContext(
