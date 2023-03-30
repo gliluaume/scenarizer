@@ -48,7 +48,6 @@ export class Scenario {
     console.log("Run initialization");
     await this.runActions(this.init);
     for (const step of this.steps) {
-      // console.log(`Running step ${step.label}`);
       console.log(`${C.blue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`);
       await this.runActions(step.actions);
     }

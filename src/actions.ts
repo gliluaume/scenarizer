@@ -70,7 +70,6 @@ async function request(
         actual,
         expected,
         formatHeaderError(k, actual, expected)
-        // `header ${C.bold}${k}${C.reset}: (actual) ${C.bold}${C.red}${actual || '<null>'}${C.reset} != ${C.bold}${C.green}${expected}${C.reset} (expected)`
       );
     }
   }
@@ -93,7 +92,6 @@ async function request(
 }
 
 const formatScalarError = (heading, endpoint, actual, expected) => {
-  // `received ${C.bold}${C.red}${response.status}${C.reset} while calling ${endpoint}`
   return `${heading} ${C.bold}${endpoint}${C.reset}: `+
   `(actual) ${C.bold}${C.red}${actual}${C.reset} != `+
   `${C.bold}${C.green}${expected}${C.reset} (expected)`;
