@@ -22,6 +22,8 @@ This is useful to handle a sequential set of requests and make exhaustive assert
 
 It fails on first unexpected error or on failed expectation.
 
+It can interpret environment variables as "${ENV_NAME}" every where in yaml file.
+
 Features overview:
 - compare actual and expected on status code, headers and body
 - behave like an stateful HTTP client
@@ -101,7 +103,7 @@ init:
   actions:
     - updateContext:
         login: api
-        password: api
+        password: ${PASSWORD}
         baseUrl: http://localhost:3005
         persistentHeaders:
           user-agent: test-agent/1.0.0

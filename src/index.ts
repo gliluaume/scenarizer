@@ -1,5 +1,6 @@
 // deno run --allow-read src/index.ts
 import { parse as yamlParse } from "https://deno.land/std@0.82.0/encoding/yaml.ts";
+import { applyEnv } from "./env-var.ts";
 import { Scenario } from "./Scenario.ts";
 
 const printUsage = (exitError = true) => {
@@ -16,6 +17,7 @@ if (Deno.args.length !== 1 || [ '-h', '--help' ].includes(Deno.args[0])) {
 let fileContent = "";
 try {
   fileContent = await Deno.readTextFile(Deno.args[0]);
+  fileContent = applyEnv(fileContent, Deno.env.toObject())
 } catch (e) {
   console.error(e.message);
   printUsage();
