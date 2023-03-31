@@ -34,7 +34,7 @@ Features overview:
 ##  1. <a name='Usage'></a>Usage
 run
 ```
-❯ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\buckets.yml
+❯ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\scenario.yml
 ```
 
 Deployment (no Ci for now):

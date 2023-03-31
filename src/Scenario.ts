@@ -17,20 +17,20 @@ export class Scenario {
     const sensitives = /authori[sz]ation/i;
     const hide = "[REDACTED]";
     if (
-        data === null
-        || typeof data === 'string'
-        || Object.keys(data).length === 0
-        || Array.isArray(data)
+      data === null ||
+      typeof data === "string" ||
+      Object.keys(data).length === 0 ||
+      Array.isArray(data)
     ) {
-        return data;
+      return data;
     }
     return Object.keys(data).reduce((filtered, key) => {
-        filtered[key] = sensitives.exec(key)
-          ? hide
-          : this.hideSensitive(data[key]);
+      filtered[key] = sensitives.exec(key)
+        ? hide
+        : this.hideSensitive(data[key]);
 
-        return filtered;
-      }, {} as any);
+      return filtered;
+    }, {} as any);
   }
 
   constructor(data: any) {
@@ -48,7 +48,9 @@ export class Scenario {
     console.log("Run initialization");
     await this.runActions(this.init);
     for (const step of this.steps) {
-      console.log(`${C.blue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`);
+      console.log(
+        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`
+      );
       await this.runActions(step.actions);
     }
   }
@@ -61,7 +63,7 @@ export class Scenario {
 
   private async runAction(action: Action) {
     action = applyMacros(action as unknown as KvList, this.context);
-    console.log("action", action.name, action?.payload?.endpoint || "");
+    console.log(this.actionTitle(action));
     const response = await action.handler(this.context, action.payload);
     this.context.history.push(new HistoryEntry(action, response.result));
 
@@ -81,6 +83,27 @@ export class Scenario {
     if (response.context) {
       this.context = response.context;
     }
+  }
+
+  private actionTitle(action: Action) {
+    const methodsColors = new Map([
+      ["GET", C.green],
+      ["PUT", C.yellow],
+      ["POST", C.blue],
+      ["DELETE", C.red],
+    ]);
+
+    if (action.name === "updateContext")
+      return `${action.name}: ${Object.keys(action?.payload).join()}`;
+
+    const method = action?.payload?.method!;
+    const methodText= methodsColors.has(method)
+      ? `${methodsColors.get(method)}${method}${C.reset}`
+      : method || '';
+
+    return action.name === "request"
+      ? `${action.name} ${methodText} ${action?.payload?.endpoint}`
+      : action.name;
   }
 }
 
