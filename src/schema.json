@@ -1,0 +1,119 @@
+{
+  "$id": "https://example.com/schemas/scenario",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["init"],
+  "additionalProperties": false,
+  "properties": {
+    "init": {
+      "type": "object",
+      "required": ["actions"],
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "/schemas/updateContextAction"
+          }
+        }
+      }
+    },
+    "requestHook": {
+      "type": "object",
+      "required": ["action"],
+      "additionalProperties": false,
+      "properties": {
+        "additionalProperties": false,
+        "status": { "type": "number", "minimum": 200, "maximum": 599 },
+        "replay": { "type": "boolean" },
+        "action": {
+          "type": "object",
+          "properties": {
+            "request": { "$ref": "/schemas/requestAction" },
+            "updateContext": { "$ref": "/schemas/updateContextAction" }
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-1_@]$": { "$ref": "/schemas/step" }
+      }
+    }
+  },
+  "$defs": {
+    "action": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/action",
+      "oneOf": [
+        {
+          "$ref": "/schemas/requestAction"
+        },
+        {
+          "$ref": "/schemas/updateContextAction"
+        }
+      ]
+    },
+    "requestAction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/requestAction",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "body": {
+          "type": ["string", "object"]
+        }
+      }
+    },
+    "updateContextAction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/updateContextAction",
+      "type": "object",
+      "required": ["updateContext"],
+      "properties": {
+        "updateContext": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "login": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "baseUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "persistentHeaders": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "step": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/step",
+      "type": "object",
+      "required": ["label", "actions"],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "/schemas/action"
+          }
+        }
+      }
+    }
+  }
+}
