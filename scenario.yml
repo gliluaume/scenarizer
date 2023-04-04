@@ -7,7 +7,7 @@ init:
         password: api
         baseUrl: http://localhost:3005
         persistentHeaders:
-          user-agent: d-edge/1.9
+          user-agent: test/0.4
 requestHook:
   status: 401
   replay: true
@@ -42,9 +42,17 @@ steps:
       - request:
           endpoint: /health
           method: GET
+
   home-hotel:
     label: Home page
     actions:
       - request:
           endpoint: /api/home/hotel
           method: GET
+          expect:
+            status: 200
+            headers:
+              x-paging-pages-total: 0
+              x-paging-pages-current: 0
+            body: |
+              []

@@ -12,7 +12,7 @@
         "actions": {
           "type": "array",
           "items": {
-            "$ref": "/schemas/updateContextAction"
+            "$ref": "/schemas/action"
           }
         }
       }
@@ -23,7 +23,7 @@
       "additionalProperties": false,
       "properties": {
         "additionalProperties": false,
-        "status": { "type": "number", "minimum": 200, "maximum": 599 },
+        "status": { "$ref": "/schemas/httpStatus" },
         "replay": { "type": "boolean" },
         "action": {
           "type": "object",
@@ -36,8 +36,9 @@
     },
     "steps": {
       "type": "object",
+      "additionalProperties": false,
       "patternProperties": {
-        "^[a-zA-Z0-1_@]$": { "$ref": "/schemas/step" }
+        "^[a-zA-Z0-1_@\\-]+$": { "$ref": "/schemas/step" }
       }
     }
   },
@@ -45,7 +46,7 @@
     "action": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "$id": "/schemas/action",
-      "oneOf": [
+      "anyOf": [
         {
           "$ref": "/schemas/requestAction"
         },
@@ -59,17 +60,56 @@
       "$id": "/schemas/requestAction",
       "type": "object",
       "additionalProperties": false,
+      "required": ["request"],
       "properties": {
-        "endpoint": {
-          "type": "string"
-        },
-        "method": {
-          "type": "string"
+        "request": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "endpoint": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "query": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z0-1_\\-]+$": { "type": ["string", "number"] }
+              }
+            },
+            "headers": {
+              "type": ["string", "object"]
+            },
+            "body": {
+              "type": ["string", "object"]
+            },
+            "expect": {
+              "$ref": "/schemas/requestExpect"
+            }
+          }
+        }
+      }
+    },
+    "requestExpect": {
+      "$id": "/schemas/requestExpect",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "headers": {
+          "type": ["string", "object"]
         },
         "body": {
           "type": ["string", "object"]
-        }
+        },
+        "status": { "$ref": "/schemas/httpStatus" }
       }
+    },
+    "httpStatus": {
+      "$id": "/schemas/httpStatus",
+      "type": "number",
+      "minimum": 200,
+      "maximum": 599
     },
     "updateContextAction": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -79,7 +119,7 @@
       "properties": {
         "updateContext": {
           "type": "object",
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "login": {
               "type": "string"
@@ -103,6 +143,7 @@
       "$id": "/schemas/step",
       "type": "object",
       "required": ["label", "actions"],
+      "additionalProperties": false,
       "properties": {
         "label": {
           "type": "string"
