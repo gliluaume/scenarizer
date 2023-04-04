@@ -1,7 +1,7 @@
 import { ActionFnWithContext, actions } from "./actions.ts";
 import { Context, HistoryEntry } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
-import { C } from "./formatting.ts";
+import { C, methodsColors } from "./formatting.ts";
 
 export class Scenario {
   public init: Action[];
@@ -86,13 +86,6 @@ export class Scenario {
   }
 
   private actionTitle(action: Action) {
-    const methodsColors = new Map([
-      ["GET", C.green],
-      ["PUT", C.yellow],
-      ["POST", C.blue],
-      ["DELETE", C.red],
-    ]);
-
     if (action.name === "updateContext")
       return `${action.name}: ${Object.keys(action?.payload).join()}`;
 

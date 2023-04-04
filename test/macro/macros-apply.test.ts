@@ -7,7 +7,7 @@ import { Action } from "../../src/Scenario.ts";
 Deno.test("applyMacros simple", () => {
   const context = Object.assign(new Context(), {
     persistentHeaders: {
-      "user-agent": "d-edge/1.9",
+      "user-agent": "test/1.9",
     },
     history: [
       new HistoryEntry(new Action({ updateContext: {} }), { token: "MyToken" }),
@@ -36,7 +36,7 @@ Deno.test("applyMacros §context", () => {
   const context = Object.assign(new Context(), {
     login: "admin",
     persistentHeaders: {
-      "user-agent": "d-edge/1.9",
+      "user-agent": "test/1.9",
     },
     history: [],
   });

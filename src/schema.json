@@ -1,0 +1,160 @@
+{
+  "$id": "https://example.com/schemas/scenario",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["init"],
+  "additionalProperties": false,
+  "properties": {
+    "init": {
+      "type": "object",
+      "required": ["actions"],
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "/schemas/action"
+          }
+        }
+      }
+    },
+    "requestHook": {
+      "type": "object",
+      "required": ["action"],
+      "additionalProperties": false,
+      "properties": {
+        "additionalProperties": false,
+        "status": { "$ref": "/schemas/httpStatus" },
+        "replay": { "type": "boolean" },
+        "action": {
+          "type": "object",
+          "properties": {
+            "request": { "$ref": "/schemas/requestAction" },
+            "updateContext": { "$ref": "/schemas/updateContextAction" }
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z0-1_@\\-]+$": { "$ref": "/schemas/step" }
+      }
+    }
+  },
+  "$defs": {
+    "action": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/action",
+      "anyOf": [
+        {
+          "$ref": "/schemas/requestAction"
+        },
+        {
+          "$ref": "/schemas/updateContextAction"
+        }
+      ]
+    },
+    "requestAction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/requestAction",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request"],
+      "properties": {
+        "request": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "endpoint": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "query": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z0-1_\\-]+$": { "type": ["string", "number"] }
+              }
+            },
+            "headers": {
+              "type": ["string", "object"]
+            },
+            "body": {
+              "type": ["string", "object"]
+            },
+            "expect": {
+              "$ref": "/schemas/requestExpect"
+            }
+          }
+        }
+      }
+    },
+    "requestExpect": {
+      "$id": "/schemas/requestExpect",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "headers": {
+          "type": ["string", "object"]
+        },
+        "body": {
+          "type": ["string", "object"]
+        },
+        "status": { "$ref": "/schemas/httpStatus" }
+      }
+    },
+    "httpStatus": {
+      "$id": "/schemas/httpStatus",
+      "type": "number",
+      "minimum": 200,
+      "maximum": 599
+    },
+    "updateContextAction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/updateContextAction",
+      "type": "object",
+      "required": ["updateContext"],
+      "properties": {
+        "updateContext": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "login": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "baseUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "persistentHeaders": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "step": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "/schemas/step",
+      "type": "object",
+      "required": ["label", "actions"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "/schemas/action"
+          }
+        }
+      }
+    }
+  }
+}
