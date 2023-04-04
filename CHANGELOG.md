@@ -1,3 +1,13 @@
+## 0.6.0 (2023-04-04)
+
+### Feat
+
+- validate schema
+
+### Fix
+
+- colors and schema check
+
 ## 0.5.0 (2023-03-31)
 
 ### Feat
