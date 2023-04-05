@@ -1,3 +1,9 @@
+## 0.6.1 (2023-04-05)
+
+### Fix
+
+- authorize env var in base Url
+
 ## 0.6.0 (2023-04-04)
 
 ### Feat
