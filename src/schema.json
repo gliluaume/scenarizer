@@ -128,8 +128,16 @@
               "type": "string"
             },
             "baseUrl": {
-              "type": "string",
-              "format": "uri"
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uri"
+                },
+                {
+                  "type": "string",
+                  "pattern": "\\$\\{[_A-Za-z0-1]*\\}"
+                }
+              ]
             },
             "persistentHeaders": {
               "type": "object"
