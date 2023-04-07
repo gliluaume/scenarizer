@@ -1,3 +1,9 @@
+## 0.6.2 (2023-04-07)
+
+### Fix
+
+- **schema**: digits in step name and requestHooks allow all digits in step name fix requestHooks validation
+
 ## 0.6.1 (2023-04-05)
 
 ### Fix
