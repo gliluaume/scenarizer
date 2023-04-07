@@ -133,13 +133,11 @@ export class RequestHook {
     return this._disabled;
   }
 
-  // constructor(status: number, criteria: string, action: any) {
   constructor(data: any) {
     this._disabled = false;
     this._maxRun = 3;
     this._run = 0;
     this.status = data.status;
-    // this.criteria = new Function(`() => (criteria)`)
     this.action = new Action(data.action);
     this.replay = !!data?.replay;
   }
