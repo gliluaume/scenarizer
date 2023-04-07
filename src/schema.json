@@ -26,11 +26,7 @@
         "status": { "$ref": "/schemas/httpStatus" },
         "replay": { "type": "boolean" },
         "action": {
-          "type": "object",
-          "properties": {
-            "request": { "$ref": "/schemas/requestAction" },
-            "updateContext": { "$ref": "/schemas/updateContextAction" }
-          }
+          "$ref": "/schemas/action"
         }
       }
     },
@@ -38,7 +34,7 @@
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
-        "^[a-zA-Z0-1_@\\-]+$": { "$ref": "/schemas/step" }
+        "^[a-zA-Z0-9_@\\-]+$": { "$ref": "/schemas/step" }
       }
     }
   },

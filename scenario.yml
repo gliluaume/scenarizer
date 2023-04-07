@@ -11,7 +11,6 @@ init:
 requestHook:
   status: 401
   replay: true
-    # criteria: $current.result.errorCode === 'TokenNeedsRefresh'
   action:
     request:
       endpoint: /api/authentication/refresh
@@ -43,11 +42,13 @@ steps:
           endpoint: /health
           method: GET
 
-  home-hotel:
+  cars-200:
     label: Home page
     actions:
       - request:
-          endpoint: /api/home/hotel
+          endpoint: /api/cars
+          query:
+            brand: simca
           method: GET
           expect:
             status: 200
