@@ -1,4 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertObjectMatch,
+} from "https://deno.land/std@0.99.0/testing/asserts.ts";
 import {
   cloneDeep,
   merge,
@@ -40,7 +43,9 @@ async function request(
 
   if (config.body) {
     const bodyStr =
-      typeof config.body === 'string' ? config.body : JSON.stringify(config.body);
+      typeof config.body === "string"
+        ? config.body
+        : JSON.stringify(config.body);
     init.body = new Blob([bodyStr], {
       type: "application/json",
     });
@@ -66,11 +71,7 @@ async function request(
     for (let [k, v] of Object.entries(config.expect.headers)) {
       const actual = response.headers.get(k) as string;
       const expected = (v as object).toString();
-      assertEquals(
-        actual,
-        expected,
-        formatHeaderError(k, actual, expected)
-      );
+      assertEquals(actual, expected, formatHeaderError(k, actual, expected));
     }
   }
 
@@ -83,7 +84,10 @@ async function request(
     const expectedBody = isJson
       ? JSON.parse(config.expect.body)
       : config.expect.body;
-    assertEquals(body, expectedBody);
+
+    config?.expect?.settings?.bodyMatch
+      ? assertObjectMatch(body, expectedBody)
+      : assertEquals(body, expectedBody);
   }
 
   const result = merge(pick(response, "status"), { body });
@@ -91,13 +95,20 @@ async function request(
   return { result, context };
 }
 
-const formatScalarError = (heading: string, endpoint: string, actual: string | number, expected: string | number) => {
-  return `${heading} ${C.bold}${endpoint}${C.reset}: `+
-  `(actual) ${C.bold}${C.red}${actual}${C.reset} != `+
-  `${C.bold}${C.green}${expected}${C.reset} (expected)`;
-}
-const formatStatusError = formatScalarError.bind(null, 'status')
-const formatHeaderError = formatScalarError.bind(null, 'header')
+const formatScalarError = (
+  heading: string,
+  endpoint: string,
+  actual: string | number,
+  expected: string | number
+) => {
+  return (
+    `${heading} ${C.bold}${endpoint}${C.reset}: ` +
+    `(actual) ${C.bold}${C.red}${actual}${C.reset} != ` +
+    `${C.bold}${C.green}${expected}${C.reset} (expected)`
+  );
+};
+const formatStatusError = formatScalarError.bind(null, "status");
+const formatHeaderError = formatScalarError.bind(null, "header");
 
 const buildUrl = (baseUrl: string, endpoint: string, query: KvList) => {
   const url = new URL(endpoint, baseUrl);
@@ -107,7 +118,7 @@ const buildUrl = (baseUrl: string, endpoint: string, query: KvList) => {
     }
   }
   return url.toString();
-}
+};
 
 // deno-lint-ignore require-await
 async function updateContext(

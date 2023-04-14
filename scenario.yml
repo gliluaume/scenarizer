@@ -51,9 +51,16 @@ steps:
             brand: simca
           method: GET
           expect:
+            settings:
+              bodyMatch: true
             status: 200
             headers:
               x-paging-pages-total: 0
               x-paging-pages-current: 0
             body: |
-              []
+              [
+                {
+                  "id": 1000,
+                  "creationDate": "1963-04-13T15:16:53"
+                },
+              ]

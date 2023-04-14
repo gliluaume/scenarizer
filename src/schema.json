@@ -92,6 +92,12 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "settings": {
+          "type": "object",
+          "properties": {
+            "bodyMatch":  { "type": "boolean" }
+          }
+        },
         "headers": {
           "type": ["string", "object"]
         },

@@ -86,6 +86,8 @@ Takes:
 - body: request payload. If a string is passed passed as is, if object is passed it will be stringified before sending
 
 ##### Expectations
+- settings: object giving options on matching results.
+  * `matchBody`: execute an [assertObjectMatch](https://deno.land/std@0.182.0/testing/asserts.ts?s=assertObjectMatch) on body to check actual is a subset of expected if true, execute strict deep comparison otherwise. Default value is `false`
 - status: checks the http status code
 - body: check strict equality. JS Object is compared if `Content-Type` header has `application/json`, string comparison otherwise
 - headers: takes an object and checks if each expected header name contains described values. This implies:
@@ -147,6 +149,8 @@ steps:
           endpoint: /api/stuffs/7610cafc-8037-404c-b498-5255b6bc7c52
           method: GET
           expect:
+            settings:
+              bodyMatch: true
             status: 200
             headers:
               x-my-custom-data: "a value"
