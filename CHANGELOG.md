@@ -1,3 +1,9 @@
+## 0.7.0 (2023-04-14)
+
+### Feat
+
+- **expect**: add bodyMatch setting
+
 ## 0.6.2 (2023-04-07)
 
 ### Fix
