@@ -1,0 +1,14 @@
+init:
+  actions:
+    - updateContext:
+        baseUrl: https://google.com
+steps:
+  health:
+    label:  health
+    actions:
+      - request:
+          endpoint: /
+          method: GET
+          expect:
+            status: 200
+

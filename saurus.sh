@@ -19,7 +19,7 @@ function saurus() {
     shift
     case "$command" in
         run)
-            $DENO_CMD run --allow-read --allow-net src/index.ts $*
+            $DENO_CMD run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts $*
         ;;
         test)
             $DENO_CMD test

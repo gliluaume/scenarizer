@@ -9,6 +9,10 @@ export class Scenario {
   public steps: Step[];
   private context: Context;
 
+  public get duration() {
+    return performance.now();
+  }
+
   public get data() {
     return this.hideSensitive(this.context);
   }

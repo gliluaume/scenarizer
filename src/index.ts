@@ -41,6 +41,7 @@ const scenario = new Scenario(data);
 try {
   await scenario.run();
   console.log(`${C.bold}Test ${C.green}success!${C.reset}`);
+  console.log(`duration: ${scenario.duration} ms`);
 } catch (e) {
   console.error(e.message);
   console.log(`${C.bold}Test suite ${C.red}failed.${C.reset}`);
