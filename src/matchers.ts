@@ -1,3 +1,9 @@
+import {
+  cloneDeep,
+  get,
+  set,
+} from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
+
 /**
  * A matcher is to be used in a body expectation.
  *
@@ -51,20 +57,16 @@
  */
 type matcherParam = string | number;
 
-class MatcherDescriptor {
-  matcherName: string;
-  params: matcherParam[];
-  path: string[];
-  constructor() {
-    this.matcherName = "";
-    this.params = [];
-    this.path = [];
-  }
-}
-
 export type matcher = (...values: matcherParam[]) => boolean;
 
 const noop = () => true;
+const matchNumber = (candidate: string, min?: number, max?: number) => {
+  if (Number.isNaN(+candidate)) return false;
+  const val = +candidate;
+  if (null !== min && null !== max) return val >= min! && val <= max!;
+  if (null !== min) return val >= min!;
+  return true;
+};
 
 type matcherNames =
   | "§match.closeDate"
@@ -76,10 +78,25 @@ type matcherNames =
 export const matchers: Map<matcherNames, matcher> = new Map([
   ["§match.closeDate", noop],
   ["§match.date", noop],
-  ["§match.number", noop],
+  ["§match.number", matchNumber as matcher],
   ["§match.regexp", noop],
   ["§match.uuid", noop],
 ]);
+
+export class MatcherDescriptor {
+  matcherName: matcherNames;
+  params: matcherParam[];
+  path: string[];
+  constructor(name: matcherNames, params: matcherParam[], path: string[]) {
+    this.matcherName = name;
+    this.params = params;
+    this.path = path;
+  }
+  execute(candidate: matcherParam) {
+    const executor = matchers.get(this.matcherName)!;
+    return executor(candidate, ...this.params);
+  }
+}
 
 export function searchForMatchers(
   data: any,
@@ -100,7 +117,13 @@ export function searchForMatchers(
         })
         .find((isMacroDesc) => isMacroDesc) || false;
     if (matcherDesc) {
-      descriptors.push(matcherDesc);
+      descriptors.push(
+        new MatcherDescriptor(
+          matcherDesc.matcherName,
+          matcherDesc.params,
+          matcherDesc.path
+        )
+      );
     }
     return descriptors;
   } else {
@@ -133,4 +156,30 @@ export const subSearch = (
     : paramExtractor.has(matcherName)
     ? paramExtractor.get(matcherName)!(match?.groups?.params!)
     : [];
+};
+
+/**
+ * Recalculate expected from matching values in actual data
+ * @param actual object retrieven
+ * @param expected object expected
+ * @param matchers found matcher
+ * @returns the expected body with values from actual where values match matchers
+ * @throws assertion error when actual values do not match matchers
+ */
+export const applyMatchers = (
+  actual: any,
+  expected: any,
+  matchers: MatcherDescriptor[]
+): any => {
+  const alteredExpected = cloneDeep(expected);
+
+  matchers.forEach((matcher) => {
+    const dottedPath = matcher.path.join(".");
+    const valueUnderTest = get(actual, dottedPath);
+    if (matcher.execute(valueUnderTest)) {
+      set(alteredExpected, dottedPath, valueUnderTest);
+    }
+  });
+
+  return alteredExpected;
 };
