@@ -73,8 +73,6 @@ Deno.test("applyMacros §context", () => {
     const context = Object.assign(new Context(), {
       entry: t.value,
     });
-    console.log(t);
-    console.log(context);
     const data = {
       entry: t.template,
     };
