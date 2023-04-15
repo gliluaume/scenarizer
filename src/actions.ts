@@ -85,15 +85,20 @@ async function request(
       ? JSON.parse(config.expect.body)
       : config.expect.body;
 
-    config?.expect?.settings?.bodyMatch
-      ? assertObjectMatch(body, expectedBody)
-      : assertEquals(body, expectedBody);
+    assertBody(body, expectedBody, config?.expect?.settings?.bodyMatch);
   }
 
   const result = merge(pick(response, "status"), { body });
 
   return { result, context };
 }
+
+// TODO: export assert function to a dedicated module: assertStatus, assertHeader, assertBody
+export const assertBody = (actual: any, expected: any, bodyMatch: boolean) => {
+  bodyMatch
+    ? assertObjectMatch(actual, expected)
+    : assertEquals(actual, expected);
+};
 
 const formatScalarError = (
   heading: string,
