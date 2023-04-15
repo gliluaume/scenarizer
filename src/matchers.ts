@@ -3,6 +3,8 @@ import {
   get,
   set,
 } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
+import { tools } from "./tools.ts";
+import isNil from "https://deno.land/x/lodash@4.17.15-es/isNil.js";
 
 /**
  * A matcher is to be used in a body expectation.
@@ -60,12 +62,32 @@ type matcherParam = string | number;
 export type matcher = (...values: matcherParam[]) => boolean;
 
 const noop = () => true;
+const closeDate = (str: string, offset = 500) => {
+  if (offset < 0) throw Error("invalid offset for closeDate. Given:" + offset);
+  const diff = tools.now().getTime() - new Date(str).getTime();
+  return diff >= 0 && diff <= offset;
+};
 const matchNumber = (candidate: string, min?: number, max?: number) => {
   if (Number.isNaN(+candidate)) return false;
   const val = +candidate;
-  if (null !== min && null !== max) return val >= min! && val <= max!;
-  if (null !== min) return val >= min!;
+  if (!isNil(min) && !isNil(max)) return val >= min! && val <= max!;
+  if (!isNil(min)) return val >= min!;
   return true;
+};
+const date = (candidate: string) => {
+  const reg = /^[\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}([\d]{3})?/;
+  if (!reg.exec(candidate)) return false;
+  try {
+    new Date(candidate);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const regexp = (candidate: string, tpl: string) => {
+  if (typeof tpl !== "string") throw new Error("invalid tpl for regexp");
+  const r = new RegExp(tpl);
+  return !!r.exec(candidate);
 };
 
 type matcherNames =
@@ -76,10 +98,10 @@ type matcherNames =
   | "§match.uuid";
 
 export const matchers: Map<matcherNames, matcher> = new Map([
-  ["§match.closeDate", noop],
-  ["§match.date", noop],
+  ["§match.closeDate", closeDate as matcher],
+  ["§match.date", date as matcher],
   ["§match.number", matchNumber as matcher],
-  ["§match.regexp", noop],
+  ["§match.regexp", regexp as unknown as matcher],
   ["§match.uuid", noop],
 ]);
 
@@ -137,7 +159,8 @@ const extractNumbers: paramExtractorFn = (strPrm?: string) =>
 const extractSingleString: paramExtractorFn = (strPrm: string) => [strPrm];
 const extractNoParam: paramExtractorFn = (_strPrm: string) => [];
 
-const paramExtractor: Map<matcherNames, paramExtractorFn> = new Map([
+// TODO: assert params
+export const paramExtractor: Map<matcherNames, paramExtractorFn> = new Map([
   ["§match.closeDate", extractNumbers],
   ["§match.date", extractNoParam],
   ["§match.number", extractNumbers],
