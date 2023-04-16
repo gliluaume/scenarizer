@@ -5,6 +5,7 @@ import {
 } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 import { tools } from "./tools.ts";
 import isNil from "https://deno.land/x/lodash@4.17.15-es/isNil.js";
+import { KvList } from "./macros.ts";
 
 /**
  * A matcher is to be used in a body expectation.
@@ -89,6 +90,10 @@ const regexp = (candidate: string, tpl: string) => {
   const r = new RegExp(tpl);
   return !!r.exec(candidate);
 };
+const uuid = (candidate: string) =>
+  !!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.exec(
+    candidate
+  );
 
 type matcherNames =
   | "§match.closeDate"
@@ -102,7 +107,7 @@ export const matchers: Map<matcherNames, matcher> = new Map([
   ["§match.date", date as matcher],
   ["§match.number", matchNumber as matcher],
   ["§match.regexp", regexp as unknown as matcher],
-  ["§match.uuid", noop],
+  ["§match.uuid", uuid as matcher],
 ]);
 
 export class MatcherDescriptor {
@@ -206,3 +211,13 @@ export const applyMatchers = (
 
   return alteredExpected;
 };
+
+
+// export const checkSyntax = (lines: string[]) => {
+//   const errors = lines.reduce((errs, line, index) => {
+
+//   }, []);
+// }
+// const checkLineSyntax = (line: string): KvList | false => {
+//   return false
+// };

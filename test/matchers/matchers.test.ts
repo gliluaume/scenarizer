@@ -48,3 +48,13 @@ Deno.test("matchers: regexp", () => {
     assertEquals(fn(candidate, ...prms), expected);
   });
 });
+
+Deno.test("matchers: uuid", () => {
+  const fn = matchers.get("§match.uuid")!;
+  [
+    { candidate: "66a9eec0-f653-4819-8637-9ada9b12f472", expected: true },
+    { candidate: "66a9eec0", expected: false },
+  ].forEach(({ candidate, expected }) => {
+    assertEquals(fn(candidate), expected);
+  });
+});

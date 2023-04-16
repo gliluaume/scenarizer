@@ -10,6 +10,7 @@ import {
 import { Context } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
 import { C } from "./formatting.ts";
+import { applyMatchers, searchForMatchers } from "./matchers.ts";
 
 export type ActionFnWithContext = (
   context: Context,
@@ -95,9 +96,13 @@ async function request(
 
 // TODO: export assert function to a dedicated module: assertStatus, assertHeader, assertBody
 export const assertBody = (actual: any, expected: any, bodyMatch: boolean) => {
+  const matchers = searchForMatchers(expected);
+  const alteredExpected =
+    matchers.length > 0 ? applyMatchers(actual, expected, matchers) : expected;
+
   bodyMatch
-    ? assertObjectMatch(actual, expected)
-    : assertEquals(actual, expected);
+    ? assertObjectMatch(actual, alteredExpected)
+    : assertEquals(actual, alteredExpected);
 };
 
 const formatScalarError = (
