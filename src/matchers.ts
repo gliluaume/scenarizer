@@ -5,7 +5,8 @@ import {
 } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 import { tools } from "./tools.ts";
 import isNil from "https://deno.land/x/lodash@4.17.15-es/isNil.js";
-import { KvList } from "./macros.ts";
+import { C } from "./formatting.ts";
+import baseSet from "https://deno.land/x/lodash@4.17.15-es/_baseSet.js";
 
 /**
  * A matcher is to be used in a body expectation.
@@ -57,12 +58,23 @@ import { KvList } from "./macros.ts";
  * - number [min] [max]: a number, a number >= min, a number <= max
  * - regexp [pattern]: a string, a string matchin a pattern
  * - uuid: any uuid, uuid/V4, guid, etc. could be a shorthand of a specific case of the previous one
+ *
+ * Matchers syntax must be checked in the whole input file.
+ * On the current version, a valid location for matcher is:
+ * - in the expect section
+ * - in the expected body
+ * - only when body is a valid JSON
+ *
+ * Further and easy locations:
+ * - expected header
+ * - expected body as string (should specify delimiter, eg {{§matcher.number 1 10}})
  */
 type matcherParam = string | number;
 
-export type matcher = (...values: matcherParam[]) => boolean;
+type matchFn = (...values: matcherParam[]) => boolean;
 
-const noop = () => true;
+const dateRegexp = /^[\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}([\d]{3})?/;
+
 const closeDate = (str: string, offset = 500) => {
   if (offset < 0) throw Error("invalid offset for closeDate. Given:" + offset);
   const diff = tools.now().getTime() - new Date(str).getTime();
@@ -76,8 +88,7 @@ const matchNumber = (candidate: string, min?: number, max?: number) => {
   return true;
 };
 const date = (candidate: string) => {
-  const reg = /^[\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}([\d]{3})?/;
-  if (!reg.exec(candidate)) return false;
+  if (!dateRegexp.exec(candidate)) return false;
   try {
     new Date(candidate);
     return true;
@@ -95,6 +106,161 @@ const uuid = (candidate: string) =>
     candidate
   );
 
+type paramExtractorFn = (strPrm: string) => matcherParam[];
+const extractNumbers: paramExtractorFn = (strPrm?: string) =>
+  strPrm ? strPrm.split(" ").map((p) => +p) : [];
+const extractSingleString: paramExtractorFn = (strPrm: string) => [strPrm];
+const extractNoParam: paramExtractorFn = (_strPrm: string) => [];
+
+const checkNumbers =
+  (minNum = 0, maxNum = 0) =>
+  (text: string) => {
+    const list = text.split(" ");
+    if (list.length > maxNum || list.length < minNum)
+      return "Number params: Bad number of arguments";
+    const badParams = list.filter((prm) => Number.isNaN(Number(prm)));
+    if (badParams.length > 0)
+      return `Number params: Bad param types, number expected, given: ${badParams.join(
+        ", "
+      )}`;
+    return false;
+  };
+
+const checkDatePrm: syntaxChecker = (text: string) => {
+  return text.length === 0
+    ? false
+    : checkNumbers(0, Number.MAX_VALUE)(text) + "(date)";
+};
+const checkNoParam: syntaxChecker = (text: string) => {
+  return text.length === 0 ? false : "No param expected";
+};
+const checkExactlyOneStringParam: syntaxChecker = (text: string) => {
+  return text.length !== 0 ? false : "Exactly one string param expected";
+};
+
+interface IErrorsItem {
+  lineNumber: number;
+  message: string;
+}
+type syntaxChecker = (line: string) => string | false;
+export const checkSyntax = (lines: string[]) => {
+  return lines.reduce((errs, line, index) => {
+    const errorsSet = checkLineSyntax(line, index);
+    if (errorsSet) {
+      errs.push(errorsSet);
+    }
+    return errs;
+  }, [] as IErrorsItem[]);
+};
+
+interface IErrorsSet {
+  errors: IErrorsItem[];
+  path: string[];
+  body: string;
+}
+
+export const formatMatchersErrors = (errorsSet: IErrorsSet[]) => {
+  return errorsSet
+    .map(
+      (set) =>
+        `${C.bold}${set.path.join(".")}${C.reset}:\n` +
+        set.errors
+          .map(
+            (error) =>
+              `  ${C.bold}${error.lineNumber}${C.reset}: ${error.message}`
+          )
+          .join("\n") +
+        "\n" +
+        getBodyContext(set)
+    )
+    .join("\n");
+};
+
+const getBodyContext = (set: IErrorsSet) => {
+  const linesWithError = set.errors.map((err) => err.lineNumber);
+  let bodyLinesColored = set.body.split("\n");
+  const decimals = 1 + Math.floor(Math.log10(bodyLinesColored.length))
+  const head = " ".repeat(4);
+  bodyLinesColored = bodyLinesColored.map((line, index) => {
+    const paddedLineNum = `${index+1}`.padStart(decimals, ' ');
+
+    if (linesWithError.includes(index)) {
+      return `${head}${C.red}${paddedLineNum}: ${line}${C.reset}`
+    }
+    return `${head}${paddedLineNum}: ${line}`;
+  });
+  const start = Math.max(1, Math.min(...linesWithError) - 1);
+  const end = Math.min(
+    bodyLinesColored.length,
+    Math.max(...linesWithError) + 1
+  );
+  const scope = bodyLinesColored.slice(start - 1, end + 1);
+
+  if (start > 1) scope.unshift("…");
+  if (end < bodyLinesColored.length) scope.push("…");
+  return scope.join("\n");
+};
+
+export const checkScenarioData = (data: any) => {
+  const allErrors: IErrorsSet[] = [];
+  Object.keys(data.steps).forEach((stepName) => {
+    const actions = data.steps[stepName as any].actions;
+    actions.forEach((action: any) => {
+      const bodyText = action?.request?.expect?.body;
+      if (bodyText) {
+        const errors = checkSyntax(bodyText.split("\n"));
+        if (errors.length > 0) {
+          allErrors.push({
+            errors,
+            path: ["steps", stepName, "action", "request", "expect", "body"],
+            body: bodyText,
+          });
+        }
+      }
+    });
+  });
+  return allErrors;
+};
+
+const checkLineSyntax = (
+  line: string,
+  lineNumber: number
+): IErrorsItem | false => {
+  const m = /(?<matcher>§match\.[^ \"]+) ?(?<trailing>[^\"]*)/.exec(line);
+  if (!m) return false;
+  const name = m.groups?.matcher! as matcherNames;
+  if (!Matchers.has(name)) {
+    return {
+      lineNumber,
+      message: `unknown matcher "${name}"`,
+    };
+  }
+  const trailing = m.groups?.trailing!;
+  const isBad = Matchers.checker(name)(trailing);
+  if (isBad) {
+    return {
+      lineNumber,
+      message: isBad,
+    };
+  }
+  return false;
+};
+
+class Matcher {
+  checker: syntaxChecker;
+  paramExtractor: paramExtractorFn;
+  executor: matchFn;
+  constructor(
+    checker: syntaxChecker,
+    paramExtractor: paramExtractorFn,
+    executor: matchFn
+  ) {
+    this.checker = checker;
+    this.paramExtractor = paramExtractor;
+    this.executor = executor;
+  }
+}
+
 type matcherNames =
   | "§match.closeDate"
   | "§match.date"
@@ -102,14 +268,66 @@ type matcherNames =
   | "§match.regexp"
   | "§match.uuid";
 
-export const matchers: Map<matcherNames, matcher> = new Map([
-  ["§match.closeDate", closeDate as matcher],
-  ["§match.date", date as matcher],
-  ["§match.number", matchNumber as matcher],
-  ["§match.regexp", regexp as unknown as matcher],
-  ["§match.uuid", uuid as matcher],
-]);
+class _Matchers {
+  private matchers: Map<matcherNames, Matcher>;
+  constructor() {
+    this.matchers = new Map([
+      [
+        "§match.closeDate",
+        new Matcher(checkDatePrm, extractNumbers, closeDate as matchFn),
+      ],
+      [
+        "§match.date",
+        new Matcher(checkNoParam, extractNoParam, date as matchFn),
+      ],
+      [
+        "§match.number",
+        new Matcher(checkNumbers(0, 2), extractNumbers, matchNumber as matchFn),
+      ],
+      [
+        "§match.regexp",
+        new Matcher(
+          checkExactlyOneStringParam,
+          extractSingleString,
+          regexp as unknown as matchFn
+        ),
+      ],
+      [
+        "§match.uuid",
+        new Matcher(checkNoParam, extractNoParam, uuid as matchFn),
+      ],
+    ]);
+  }
 
+  get list(): matcherNames[] {
+    return [...this.matchers.keys()];
+  }
+
+  has(name: matcherNames): boolean {
+    return this.matchers.has(name);
+  }
+
+  get(name: matcherNames): Matcher {
+    if (!this.matchers.has(name)) throw new Error(`Unknown matcher ${name}!`);
+    return this.matchers.get(name)!;
+  }
+
+  checker(name: matcherNames) {
+    return this.get(name).checker;
+  }
+
+  executor(name: matcherNames) {
+    return this.get(name).executor;
+  }
+
+  paramExtractor(name: matcherNames) {
+    return this.get(name).paramExtractor;
+  }
+}
+
+export const Matchers = new _Matchers();
+
+/************************************************************************* */
 export class MatcherDescriptor {
   matcherName: matcherNames;
   params: matcherParam[];
@@ -120,7 +338,7 @@ export class MatcherDescriptor {
     this.path = path;
   }
   execute(candidate: matcherParam) {
-    const executor = matchers.get(this.matcherName)!;
+    const executor = Matchers.executor(this.matcherName)!;
     return executor(candidate, ...this.params);
   }
 }
@@ -137,7 +355,7 @@ export function searchForMatchers(
     return descriptors;
   } else if (typeof data === "string") {
     const matcherDesc =
-      [...matchers.keys()]
+      Matchers.list
         .map((matcherName) => {
           const params = subSearch(matcherName, data);
           return params ? { matcherName, params, path } : false;
@@ -158,21 +376,6 @@ export function searchForMatchers(
   }
 }
 
-type paramExtractorFn = (strPrm: string) => matcherParam[];
-const extractNumbers: paramExtractorFn = (strPrm?: string) =>
-  strPrm ? strPrm.split(" ").map((p) => +p) : [];
-const extractSingleString: paramExtractorFn = (strPrm: string) => [strPrm];
-const extractNoParam: paramExtractorFn = (_strPrm: string) => [];
-
-// TODO: assert params
-export const paramExtractor: Map<matcherNames, paramExtractorFn> = new Map([
-  ["§match.closeDate", extractNumbers],
-  ["§match.date", extractNoParam],
-  ["§match.number", extractNumbers],
-  ["§match.regexp", extractSingleString],
-  ["§match.uuid", extractNoParam],
-]);
-
 export const subSearch = (
   matcherName: matcherNames,
   candidate: string
@@ -181,9 +384,7 @@ export const subSearch = (
   const match = regexp.exec(candidate);
   return !match
     ? false
-    : paramExtractor.has(matcherName)
-    ? paramExtractor.get(matcherName)!(match?.groups?.params!)
-    : [];
+    : Matchers.paramExtractor(matcherName)(match?.groups?.params!);
 };
 
 /**
@@ -211,13 +412,3 @@ export const applyMatchers = (
 
   return alteredExpected;
 };
-
-
-// export const checkSyntax = (lines: string[]) => {
-//   const errors = lines.reduce((errs, line, index) => {
-
-//   }, []);
-// }
-// const checkLineSyntax = (line: string): KvList | false => {
-//   return false
-// };
