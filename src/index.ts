@@ -13,8 +13,6 @@ const assertSchema = async (yamlFileContent: string) => {
     console.log(formatErrors(errors));
     Deno.exit(3);
   }
-
-  console.log("input file is valid");
 };
 
 const prepareFile = async () => {
@@ -35,7 +33,7 @@ const prepareFile = async () => {
     console.log(formatMatchersErrors(syntaxErrors));
     Deno.exit(4);
   }
-
+  console.log("input file is valid");
   return data;
 };
 
@@ -51,7 +49,7 @@ if (Deno.args.length !== 1 || ["-h", "--help"].includes(Deno.args[0])) {
   printUsage(Deno.args.length !== 1);
 }
 
-const data = prepareFile();
+const data = await prepareFile();
 const scenario = new Scenario(data);
 try {
   await scenario.run();

@@ -175,3 +175,23 @@ steps:
             body: |
               []
 ```
+
+
+File validation
+```bash
+steps.step1.action.request.expect.body:
+  1: Number params: Bad param types, number expected, given: zer
+    1: {
+    2:   "age": "§match.number zer",
+    3:   "name": "§match.regexp ^[a-z]+$",
+…
+steps.step2.action.request.expect.body:
+  1: Exactly one string param expected
+  3: Number params: Bad param types, number expected, given: rrr
+    1: {
+    2:   "name": "§match.regexp",
+    3:   "age": 33,
+    4:   "height": "§match.number rrr"
+    5: }
+…
+```

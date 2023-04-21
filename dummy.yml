@@ -13,20 +13,7 @@ steps:
             status: 200
             body: |
               {
-                "nameaa": 6,
-                "nameaz": 6,
-                "nameae": 6,
-
-                "name": "§match.number azer reza",
-                "namea": 6,
-                "namez": 6,
-                "namee": 6,
-                "namer": 6,
-                "namet": 6,
-                "nameR": "§match.number azer",
-                "namebz": 6,
-                "namebe": 6,
-                "namebr": 6,
-                "namebt": 6,
+                "age": "§match.number 1 3",
+                "height": "§match.number"
               }
 

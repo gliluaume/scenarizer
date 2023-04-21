@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
-import { checkScenarioData, checkSyntax, formatMatchersErrors } from "../../src/matchers.ts";
+import {
+  checkScenarioData,
+  checkSyntax,
+  formatMatchersErrors,
+} from "../../src/matchers.ts";
 
 const jsonBody = `
   [
@@ -20,13 +24,18 @@ Deno.test("check syntax for JSON body", () => {
   assertEquals(actual, [
     {
       lineNumber: 3,
-      message: "Number params: Bad param types, number expected, given: rez",
+      message:
+        "Number params: Bad param types, number expected, given: \x1b[31mrez\x1b[0m",
     },
-    { lineNumber: 4, message: "Number params: Bad number of arguments" },
+    {
+      lineNumber: 4,
+      message:
+        "Number params: Bad number of arguments. Expecting 0 to 2 parameters. Given \x1b[31m3 4 5\x1b[0m",
+    },
     {
       lineNumber: 5,
       message:
-        "Number params: Bad param types, number expected, given: zer(date)",
+        "Number params: Bad param types, number expected, given: \x1b[31mzer\x1b[0m(date)",
     },
     { lineNumber: 6, message: "No param expected" },
     { lineNumber: 7, message: "Exactly one string param expected" },
@@ -43,7 +52,11 @@ const textBody = `
 Deno.test("check syntax for text body", () => {
   const actual = checkSyntax(textBody);
   assertEquals(actual, [
-    { lineNumber: 2, message: "Number params: Bad number of arguments" },
+    {
+      lineNumber: 2,
+      message:
+        "Number params: Bad number of arguments. Expecting 0 to 2 parameters. Given \x1b[31m3 4 5}}\x1b[0m",
+    },
   ]);
 });
 
@@ -57,11 +70,12 @@ const data = {
           request: {
             endpoint: "§match.number",
             expect: {
-              body: '{\n'+
-              '  "age": "§match.number zer",\n'+
-              '  "name": "§match.regexp ^[a-z]+$",\n'+
-              '  "height": 165\n'+
-              '}',
+              body:
+                "{\n" +
+                '  "age": "§match.number zer",\n' +
+                '  "name": "§match.regexp ^[a-z]+$",\n' +
+                '  "height": 165\n' +
+                "}",
             },
           },
         },
@@ -74,11 +88,12 @@ const data = {
           request: {
             endpoint: "/home",
             expect: {
-              body: '{\n' +
-              '  "name": "§match.regexp",\n' +
-              '  "age": 33,\n' +
-              '  "height": "§match.number rrr"\n' +
-              '}',
+              body:
+                "{\n" +
+                '  "name": "§match.regexp",\n' +
+                '  "age": 33,\n' +
+                '  "height": "§match.number rrr"\n' +
+                "}",
             },
           },
         },
@@ -96,7 +111,7 @@ Deno.test("check syntax for data input", () => {
         {
           lineNumber: 1,
           message:
-            "Number params: Bad param types, number expected, given: zer",
+            "Number params: Bad param types, number expected, given: \x1b[31mzer\x1b[0m",
         },
       ],
       path: ["steps", "step1", "action", "request", "expect", "body"],
@@ -108,7 +123,7 @@ Deno.test("check syntax for data input", () => {
         {
           lineNumber: 3,
           message:
-            "Number params: Bad param types, number expected, given: rrr",
+            "Number params: Bad param types, number expected, given: \x1b[31mrrr\x1b[0m",
         },
       ],
       path: ["steps", "step2", "action", "request", "expect", "body"],
@@ -119,21 +134,28 @@ Deno.test("check syntax for data input", () => {
 Deno.test("check error reporting", () => {
   const errors = checkScenarioData(data);
   const actual = formatMatchersErrors(errors);
-  const a = actual.split('\n');
+
+  const a = actual.split("\n");
   assertEquals(a.length, 15);
-  assertEquals(a[0], '\x1b[1msteps.step1.action.request.expect.body\x1b[0m:');
-  assertEquals(a[1], '  \x1b[1m1\x1b[0m: Number params: Bad param types, number expected, given: zer');
-  assertEquals(a[2], '    1: {');
+  assertEquals(a[0], "\x1b[1msteps.step1.action.request.expect.body\x1b[0m:");
+  assertEquals(
+    a[1],
+    "  \x1b[1m1\x1b[0m: Number params: Bad param types, number expected, given: \x1b[31mzer\x1b[0m"
+  );
+  assertEquals(a[2], "    1: {");
   assertEquals(a[3], '    \x1b[31m2:   "age": "§match.number zer",\x1b[0m');
   assertEquals(a[4], '    3:   "name": "§match.regexp ^[a-z]+$",');
-  assertEquals(a[5], '…');
-  assertEquals(a[6], '\x1b[1msteps.step2.action.request.expect.body\x1b[0m:');
-  assertEquals(a[7], '  \x1b[1m1\x1b[0m: Exactly one string param expected');
-  assertEquals(a[8], '  \x1b[1m3\x1b[0m: Number params: Bad param types, number expected, given: rrr');
-  assertEquals(a[9], '    1: {');
+  assertEquals(a[5], "…");
+  assertEquals(a[6], "\x1b[1msteps.step2.action.request.expect.body\x1b[0m:");
+  assertEquals(a[7], "  \x1b[1m1\x1b[0m: Exactly one string param expected");
+  assertEquals(
+    a[8],
+    "  \x1b[1m3\x1b[0m: Number params: Bad param types, number expected, given: \x1b[31mrrr\x1b[0m"
+  );
+  assertEquals(a[9], "    1: {");
   assertEquals(a[10], '    \x1b[31m2:   "name": "§match.regexp",\x1b[0m');
   assertEquals(a[11], '    3:   "age": 33,');
   assertEquals(a[12], '    \x1b[31m4:   "height": "§match.number rrr"\x1b[0m');
-  assertEquals(a[13], '    5: }');
-  assertEquals(a[14], '…');
+  assertEquals(a[13], "    5: }");
+  assertEquals(a[14], "…");
 });

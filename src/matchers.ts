@@ -116,13 +116,20 @@ const checkNumbers =
   (minNum = 0, maxNum = 0) =>
   (text: string) => {
     const list = text.split(" ");
-    if (list.length > maxNum || list.length < minNum)
-      return "Number params: Bad number of arguments";
+    const given = `Given \x1b[31m${text}\x1b[0m`
+    if (list.length > maxNum || list.length < minNum) {
+      const suffix =
+        maxNum !== minNum
+          ? `${minNum} to ${maxNum} parameters.`
+          : `exactly ${minNum} parameter${minNum > 1 ? "s" : ""}.`;
+
+      return `Number params: Bad number of arguments. Expecting ${suffix} ${given}`;
+    }
     const badParams = list.filter((prm) => Number.isNaN(Number(prm)));
     if (badParams.length > 0)
-      return `Number params: Bad param types, number expected, given: ${badParams.join(
+      return `Number params: Bad param types, number expected, given: \x1b[31m${badParams.join(
         ", "
-      )}`;
+      )}\x1b[0m`;
     return false;
   };
 
@@ -179,13 +186,13 @@ export const formatMatchersErrors = (errorsSet: IErrorsSet[]) => {
 const getBodyContext = (set: IErrorsSet) => {
   const linesWithError = set.errors.map((err) => err.lineNumber);
   let bodyLinesColored = set.body.split("\n");
-  const decimals = 1 + Math.floor(Math.log10(bodyLinesColored.length))
+  const decimals = 1 + Math.floor(Math.log10(bodyLinesColored.length));
   const head = " ".repeat(4);
   bodyLinesColored = bodyLinesColored.map((line, index) => {
-    const paddedLineNum = `${index+1}`.padStart(decimals, ' ');
+    const paddedLineNum = `${index + 1}`.padStart(decimals, " ");
 
     if (linesWithError.includes(index)) {
-      return `${head}${C.red}${paddedLineNum}: ${line}${C.reset}`
+      return `${head}${C.red}${paddedLineNum}: ${line}${C.reset}`;
     }
     return `${head}${paddedLineNum}: ${line}`;
   });
