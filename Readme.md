@@ -177,7 +177,7 @@ steps:
 ```
 
 
-File validation
+# File validation
 ```bash
 steps.step1.action.request.expect.body:
   1: Number params: Bad param types, number expected, given: zer
@@ -194,4 +194,38 @@ steps.step2.action.request.expect.body:
     4:   "height": "§match.number rrr"
     5: }
 …
+```
+
+# Assertions failures
+## Status code
+```
+Running health: health
+request GET /
+status /: (actual) 200 != 201 (expected)
+Test suite failed.
+```
+
+## Headers
+```
+Running health: health
+request GET /
+header hello: (actual) null != world (expected)
+Test suite failed.
+```
+
+## Body
+```
+error: AssertionError: Values are not equal:
+
+
+    [Diff] Actual / Expected
+
+
+    [
+      {
+-       creationDate: "1963-04-13T15:16:54",
++       creationDate: "1963-04-13T15:16:53",
+        id: 1000,
+      },
+    ]
 ```
