@@ -70,8 +70,7 @@ const data = {
           request: {
             endpoint: "§match.number",
             expect: {
-              body:
-                "{\n" +
+              body: "{\n" +
                 '  "age": "§match.number zer",\n' +
                 '  "name": "§match.regexp ^[a-z]+$",\n' +
                 '  "height": 165\n' +
@@ -88,8 +87,7 @@ const data = {
           request: {
             endpoint: "/home",
             expect: {
-              body:
-                "{\n" +
+              body: "{\n" +
                 '  "name": "§match.regexp",\n' +
                 '  "age": 33,\n' +
                 '  "height": "§match.number rrr"\n' +
@@ -140,7 +138,7 @@ Deno.test("check error reporting", () => {
   assertEquals(a[0], "\x1b[1msteps.step1.action.request.expect.body\x1b[0m:");
   assertEquals(
     a[1],
-    "  \x1b[1m1\x1b[0m: Number params: Bad param types, number expected, given: \x1b[31mzer\x1b[0m"
+    "  \x1b[1m1\x1b[0m: Number params: Bad param types, number expected, given: \x1b[31mzer\x1b[0m",
   );
   assertEquals(a[2], "    1: {");
   assertEquals(a[3], '    \x1b[31m2:   "age": "§match.number zer",\x1b[0m');
@@ -150,7 +148,7 @@ Deno.test("check error reporting", () => {
   assertEquals(a[7], "  \x1b[1m1\x1b[0m: Exactly one string param expected");
   assertEquals(
     a[8],
-    "  \x1b[1m3\x1b[0m: Number params: Bad param types, number expected, given: \x1b[31mrrr\x1b[0m"
+    "  \x1b[1m3\x1b[0m: Number params: Bad param types, number expected, given: \x1b[31mrrr\x1b[0m",
   );
   assertEquals(a[9], "    1: {");
   assertEquals(a[10], '    \x1b[31m2:   "name": "§match.regexp",\x1b[0m');

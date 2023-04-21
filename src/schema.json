@@ -95,7 +95,7 @@
         "settings": {
           "type": "object",
           "properties": {
-            "bodyMatch":  { "type": "boolean" }
+            "bodyMatch": { "type": "boolean" }
           }
         },
         "headers": {

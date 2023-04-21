@@ -31,12 +31,12 @@ export function applyMacros(data: KvList, context: Context) {
     (macs as macroDescriptor[]).forEach((mac: macroDescriptor) => {
       const fn = macros.get(mac.macroName) as macro;
       const macroResult = fn(context, mac.path);
-      const substring = [mac.macroName, mac.path].join(".")
+      const substring = [mac.macroName, mac.path].join(".");
       const regexp = new RegExp(substring);
 
       const replaced = get(newData, mac.contextPath.join(".")).replace(
         regexp,
-        macroResult
+        macroResult,
       );
 
       set(newData, mac.contextPath.join("."), replaced);
@@ -54,7 +54,7 @@ type macroDescriptor = {
 export function searchForMacros(
   data: KvList | KVvalue,
   contextPath: string[] = [],
-  macroDescriptors: macroDescriptor[] = []
+  macroDescriptors: macroDescriptor[] = [],
 ): macroDescriptor[] {
   if (typeof data === "object") {
     for (const key in data) {
@@ -63,13 +63,12 @@ export function searchForMacros(
 
     return macroDescriptors;
   } else if (typeof data === "string") {
-    const macroDesc =
-      [...macros.keys()]
-        .map((macroName) => {
-          const path = subSearch(macroName, data);
-          return path ? { macroName, path, contextPath } : false;
-        })
-        .find((isMacroDesc) => isMacroDesc) || false;
+    const macroDesc = [...macros.keys()]
+      .map((macroName) => {
+        const path = subSearch(macroName, data);
+        return path ? { macroName, path, contextPath } : false;
+      })
+      .find((isMacroDesc) => isMacroDesc) || false;
     if (macroDesc) {
       macroDescriptors.push(macroDesc);
     }

@@ -14,7 +14,7 @@ import { applyMatchers, searchForMatchers } from "./matchers.ts";
 
 export type ActionFnWithContext = (
   context: Context,
-  payload: any
+  payload: any,
 ) => Promise<ActionResponse>;
 
 export type ActionFn = (payload: Object) => Object;
@@ -31,7 +31,7 @@ export const actions: Map<string, ActionFnWithContext> = new Map([
 
 async function request(
   context: Context,
-  { endpoint, ...config }: any
+  { endpoint, ...config }: any,
 ): Promise<ActionResponse> {
   const headers = new Headers(context.persistentHeaders);
   if (config.headers) {
@@ -43,10 +43,9 @@ async function request(
   const init: RequestInit = { headers, method };
 
   if (config.body) {
-    const bodyStr =
-      typeof config.body === "string"
-        ? config.body
-        : JSON.stringify(config.body);
+    const bodyStr = typeof config.body === "string"
+      ? config.body
+      : JSON.stringify(config.body);
     init.body = new Blob([bodyStr], {
       type: "application/json",
     });
@@ -63,7 +62,7 @@ async function request(
     assertEquals(
       response.status,
       wrappedStatus,
-      formatStatusError(endpoint, response.status, wrappedStatus)
+      formatStatusError(endpoint, response.status, wrappedStatus),
     );
   }
 
@@ -97,8 +96,9 @@ async function request(
 // TODO: export assert function to a dedicated module: assertStatus, assertHeader, assertBody
 export const assertBody = (actual: any, expected: any, bodyMatch: boolean) => {
   const matchers = searchForMatchers(expected);
-  const alteredExpected =
-    matchers.length > 0 ? applyMatchers(actual, expected, matchers) : expected;
+  const alteredExpected = matchers.length > 0
+    ? applyMatchers(actual, expected, matchers)
+    : expected;
 
   bodyMatch
     ? assertObjectMatch(actual, alteredExpected)
@@ -109,7 +109,7 @@ const formatScalarError = (
   heading: string,
   endpoint: string,
   actual: string | number,
-  expected: string | number
+  expected: string | number,
 ) => {
   return (
     `${heading} ${C.bold}${endpoint}${C.reset}: ` +
@@ -133,7 +133,7 @@ const buildUrl = (baseUrl: string, endpoint: string, query: KvList) => {
 // deno-lint-ignore require-await
 async function updateContext(
   context: Context,
-  data: KvList
+  data: KvList,
 ): Promise<ActionResponse> {
   const forbidden = ["history"];
   const unauthorized = Object.keys(data).filter((key) =>
@@ -141,7 +141,7 @@ async function updateContext(
   );
   if (unauthorized.length > 0) {
     throw new Error(
-      `Can not update context value(s) ${unauthorized.join(", ")}`
+      `Can not update context value(s) ${unauthorized.join(", ")}`,
     );
   }
 

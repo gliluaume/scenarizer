@@ -44,7 +44,7 @@ export class Scenario {
       ? new RequestHook(data.requestHook)
       : undefined;
     this.steps = Object.keys(data.steps).map(
-      (name: string) => new Step(name, data.steps[name])
+      (name: string) => new Step(name, data.steps[name]),
     );
   }
 
@@ -53,7 +53,7 @@ export class Scenario {
     await this.runActions(this.init);
     for (const step of this.steps) {
       console.log(
-        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`
+        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`,
       );
       await this.runActions(step.actions);
     }
@@ -90,13 +90,14 @@ export class Scenario {
   }
 
   private actionTitle(action: Action) {
-    if (action.name === "updateContext")
+    if (action.name === "updateContext") {
       return `${action.name}: ${Object.keys(action?.payload).join()}`;
+    }
 
     const method = action?.payload?.method!;
-    const methodText= methodsColors.has(method)
+    const methodText = methodsColors.has(method)
       ? `${methodsColors.get(method)}${method}${C.reset}`
-      : method || '';
+      : method || "";
 
     return action.name === "request"
       ? `${action.name} ${methodText} ${action?.payload?.endpoint}`

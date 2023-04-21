@@ -102,9 +102,10 @@ const regexp = (candidate: string, tpl: string) => {
   return !!r.exec(candidate);
 };
 const uuid = (candidate: string) =>
-  !!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.exec(
-    candidate
-  );
+  !!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    .exec(
+      candidate,
+    );
 
 type paramExtractorFn = (strPrm: string) => matcherParam[];
 const extractNumbers: paramExtractorFn = (strPrm?: string) =>
@@ -112,26 +113,26 @@ const extractNumbers: paramExtractorFn = (strPrm?: string) =>
 const extractSingleString: paramExtractorFn = (strPrm: string) => [strPrm];
 const extractNoParam: paramExtractorFn = (_strPrm: string) => [];
 
-const checkNumbers =
-  (minNum = 0, maxNum = 0) =>
-  (text: string) => {
-    const list = text.split(" ");
-    const given = `Given \x1b[31m${text}\x1b[0m`
-    if (list.length > maxNum || list.length < minNum) {
-      const suffix =
-        maxNum !== minNum
-          ? `${minNum} to ${maxNum} parameters.`
-          : `exactly ${minNum} parameter${minNum > 1 ? "s" : ""}.`;
+const checkNumbers = (minNum = 0, maxNum = 0) => (text: string) => {
+  const list = text.split(" ");
+  const given = `Given \x1b[31m${text}\x1b[0m`;
+  if (list.length > maxNum || list.length < minNum) {
+    const suffix = maxNum !== minNum
+      ? `${minNum} to ${maxNum} parameters.`
+      : `exactly ${minNum} parameter${minNum > 1 ? "s" : ""}.`;
 
-      return `Number params: Bad number of arguments. Expecting ${suffix} ${given}`;
-    }
-    const badParams = list.filter((prm) => Number.isNaN(Number(prm)));
-    if (badParams.length > 0)
-      return `Number params: Bad param types, number expected, given: \x1b[31m${badParams.join(
-        ", "
-      )}\x1b[0m`;
-    return false;
-  };
+    return `Number params: Bad number of arguments. Expecting ${suffix} ${given}`;
+  }
+  const badParams = list.filter((prm) => Number.isNaN(Number(prm)));
+  if (badParams.length > 0) {
+    return `Number params: Bad param types, number expected, given: \x1b[31m${
+      badParams.join(
+        ", ",
+      )
+    }\x1b[0m`;
+  }
+  return false;
+};
 
 const checkDatePrm: syntaxChecker = (text: string) => {
   return text.length === 0
@@ -174,11 +175,11 @@ export const formatMatchersErrors = (errorsSet: IErrorsSet[]) => {
         set.errors
           .map(
             (error) =>
-              `  ${C.bold}${error.lineNumber}${C.reset}: ${error.message}`
+              `  ${C.bold}${error.lineNumber}${C.reset}: ${error.message}`,
           )
           .join("\n") +
         "\n" +
-        getBodyContext(set)
+        getBodyContext(set),
     )
     .join("\n");
 };
@@ -199,7 +200,7 @@ const getBodyContext = (set: IErrorsSet) => {
   const start = Math.max(1, Math.min(...linesWithError) - 1);
   const end = Math.min(
     bodyLinesColored.length,
-    Math.max(...linesWithError) + 1
+    Math.max(...linesWithError) + 1,
   );
   const scope = bodyLinesColored.slice(start - 1, end + 1);
 
@@ -231,7 +232,7 @@ export const checkScenarioData = (data: any) => {
 
 const checkLineSyntax = (
   line: string,
-  lineNumber: number
+  lineNumber: number,
 ): IErrorsItem | false => {
   const m = /(?<matcher>§match\.[^ \"]+) ?(?<trailing>[^\"]*)/.exec(line);
   if (!m) return false;
@@ -260,7 +261,7 @@ class Matcher {
   constructor(
     checker: syntaxChecker,
     paramExtractor: paramExtractorFn,
-    executor: matchFn
+    executor: matchFn,
   ) {
     this.checker = checker;
     this.paramExtractor = paramExtractor;
@@ -296,7 +297,7 @@ class _Matchers {
         new Matcher(
           checkExactlyOneStringParam,
           extractSingleString,
-          regexp as unknown as matchFn
+          regexp as unknown as matchFn,
         ),
       ],
       [
@@ -353,7 +354,7 @@ export class MatcherDescriptor {
 export function searchForMatchers(
   data: any,
   path: string[] = [],
-  descriptors: MatcherDescriptor[] = []
+  descriptors: MatcherDescriptor[] = [],
 ): MatcherDescriptor[] {
   if (typeof data === "object") {
     for (const key in data) {
@@ -361,20 +362,19 @@ export function searchForMatchers(
     }
     return descriptors;
   } else if (typeof data === "string") {
-    const matcherDesc =
-      Matchers.list
-        .map((matcherName) => {
-          const params = subSearch(matcherName, data);
-          return params ? { matcherName, params, path } : false;
-        })
-        .find((isMacroDesc) => isMacroDesc) || false;
+    const matcherDesc = Matchers.list
+      .map((matcherName) => {
+        const params = subSearch(matcherName, data);
+        return params ? { matcherName, params, path } : false;
+      })
+      .find((isMacroDesc) => isMacroDesc) || false;
     if (matcherDesc) {
       descriptors.push(
         new MatcherDescriptor(
           matcherDesc.matcherName,
           matcherDesc.params,
-          matcherDesc.path
-        )
+          matcherDesc.path,
+        ),
       );
     }
     return descriptors;
@@ -385,7 +385,7 @@ export function searchForMatchers(
 
 export const subSearch = (
   matcherName: matcherNames,
-  candidate: string
+  candidate: string,
 ): matcherParam[] | false => {
   const regexp = new RegExp(`${matcherName} ?(?<params>.*)?`);
   const match = regexp.exec(candidate);
@@ -405,7 +405,7 @@ export const subSearch = (
 export const applyMatchers = (
   actual: any,
   expected: any,
-  matchers: MatcherDescriptor[]
+  matchers: MatcherDescriptor[],
 ): any => {
   const alteredExpected = cloneDeep(expected);
 

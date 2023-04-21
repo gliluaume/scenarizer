@@ -21,7 +21,9 @@ steps:
 
   const actual = applyEnv(yml, { TEST: "hola", FOO: "foo", BAR: "bar" });
 
-  assertEquals(actual,`
+  assertEquals(
+    actual,
+    `
 init:
   actions:
     - updateContext:
@@ -36,6 +38,6 @@ steps:
       - request:
           endpoint: /health/foo/truc/bar
           method: GET
-`
-    );
+`,
+  );
 });

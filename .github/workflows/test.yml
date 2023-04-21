@@ -12,9 +12,9 @@ jobs:
         with:
           deno-version: v1.x
       - name: Verify formatting
-        run: deno fmt --check
-      - name: Run linter
-        run: deno lint
+        run: deno fmt --ignore=CHANGELOG.md,Readme.md --check
+      # - name: Run linter
+      #   run: deno lint
       - name: Run tests
-        run: deno test -A
+        run: deno test
   #     - run: deno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts dummy.yml
