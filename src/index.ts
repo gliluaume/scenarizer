@@ -60,5 +60,3 @@ try {
   console.log(`${C.bold}Test suite ${C.red}failed.${C.reset}`);
   Deno.exit(100);
 }
-
-// console.log(JSON.stringify(scenario.data, null, " "));

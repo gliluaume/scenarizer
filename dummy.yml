@@ -11,9 +11,9 @@ steps:
           method: GET
           expect:
             status: 200
-            body: |
-              {
-                "age": "§match.number 1 3",
-                "height": "§match.number"
-              }
+            # body: |
+            #   {
+            #     "age": "§match.number 1 3",
+            #     "height": "§match.number"
+            #   }
 
