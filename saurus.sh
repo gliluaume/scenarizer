@@ -27,8 +27,9 @@ function saurus() {
         test:coverage)
             # https://medium.com/deno-the-complete-reference/generate-code-coverage-report-in-deno-c765aa499de8
             $DENO_CMD test --coverage=${COV_DIR}
-            $DENO_CMD coverage ${COV_DIR}
-            $DENO_CMD coverage ${COV_DIR} --lcov > ${COV_DIR}/coverage.lcov
+            $DENO_CMD coverage --include=src ${COV_DIR}
+            $DENO_CMD coverage --include=src ${COV_DIR} --lcov > ${COV_DIR}/coverage.lcov
+            # reportgenerator -reports:.coverage/coverage.lcov -targetdir:.coveragereport
             genhtml -o ${COV_DIR} ${COV_DIR}/coverage.lcov
             rm -f ${COV_DIR}/.json
         ;;

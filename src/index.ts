@@ -51,12 +51,12 @@ if (Deno.args.length !== 1 || ["-h", "--help"].includes(Deno.args[0])) {
 
 const data = await prepareFile();
 const scenario = new Scenario(data);
-try {
-  await scenario.run();
-  console.log(`${C.bold}Test ${C.green}success!${C.reset}`);
-  console.log(`duration: ${scenario.duration} ms`);
-} catch (e) {
-  console.error(e.message);
+await scenario.run();
+
+if (scenario.failed) {
   console.log(`${C.bold}Test suite ${C.red}failed.${C.reset}`);
   Deno.exit(100);
 }
+console.log(`${C.bold}Test ${C.green}success!${C.reset}`);
+console.log(`duration: ${scenario.duration} ms`);
+
