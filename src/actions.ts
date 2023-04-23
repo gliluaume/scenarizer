@@ -9,12 +9,32 @@ import {
 } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 import { Context } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
-import { C } from "./formatting.ts";
+import { C, methodsColors } from "./formatting.ts";
 import { applyMatchers, searchForMatchers } from "./matchers.ts";
+
+export class Action {
+  public handler: ActionFnWithContext;
+  public payload: any;
+  public get name() {
+    return this.handler.name;
+  }
+
+  constructor(data: any) {
+    if (Object.keys(data).length !== 1) {
+      throw new Error("Only one key expected");
+    }
+
+    const name = Object.keys(data)[0];
+    if (!actions.has(name)) throw new Error(`Unknown action ${name}`);
+
+    this.handler = actions.get(name) as ActionFnWithContext;
+    this.payload = data[name];
+  }
+}
 
 export type ActionFnWithContext = (
   context: Context,
-  payload: any,
+  payload: Action
 ) => Promise<ActionResponse>;
 
 export type ActionFn = (payload: Object) => Object;
@@ -31,8 +51,26 @@ export const actions: Map<string, ActionFnWithContext> = new Map([
 
 async function request(
   context: Context,
-  { endpoint, ...config }: any,
+  action: Action
 ): Promise<ActionResponse> {
+  const actionTitle = requestActionTitle(action);
+  try {
+    const response = await _request(context, action);
+    console.log("✔️ " + actionTitle);
+    return response;
+  } catch (e) {
+    console.log("❌ " + actionTitle);
+    console.log(e.message);
+    return { result: false, context };
+    // throw e;
+  }
+}
+
+async function _request(
+  context: Context,
+  action: Action
+): Promise<ActionResponse> {
+  const { endpoint, ...config } = action.payload;
   const headers = new Headers(context.persistentHeaders);
   if (config.headers) {
     Object.keys(config.headers).forEach((name) => {
@@ -43,9 +81,10 @@ async function request(
   const init: RequestInit = { headers, method };
 
   if (config.body) {
-    const bodyStr = typeof config.body === "string"
-      ? config.body
-      : JSON.stringify(config.body);
+    const bodyStr =
+      typeof config.body === "string"
+        ? config.body
+        : JSON.stringify(config.body);
     init.body = new Blob([bodyStr], {
       type: "application/json",
     });
@@ -62,7 +101,7 @@ async function request(
     assertEquals(
       response.status,
       wrappedStatus,
-      formatStatusError(endpoint, response.status, wrappedStatus),
+      formatStatusError(endpoint, response.status, wrappedStatus)
     );
   }
 
@@ -96,9 +135,8 @@ async function request(
 // TODO: export assert function to a dedicated module: assertStatus, assertHeader, assertBody
 export const assertBody = (actual: any, expected: any, bodyMatch: boolean) => {
   const matchers = searchForMatchers(expected);
-  const alteredExpected = matchers.length > 0
-    ? applyMatchers(actual, expected, matchers)
-    : expected;
+  const alteredExpected =
+    matchers.length > 0 ? applyMatchers(actual, expected, matchers) : expected;
 
   bodyMatch
     ? assertObjectMatch(actual, alteredExpected)
@@ -109,7 +147,7 @@ const formatScalarError = (
   heading: string,
   endpoint: string,
   actual: string | number,
-  expected: string | number,
+  expected: string | number
 ) => {
   return (
     `${heading} ${C.bold}${endpoint}${C.reset}: ` +
@@ -130,23 +168,38 @@ const buildUrl = (baseUrl: string, endpoint: string, query: KvList) => {
   return url.toString();
 };
 
+const requestActionTitle = (action: Action) => {
+  const method = action?.payload?.method!;
+  const methodText = methodsColors.has(method)
+    ? `${methodsColors.get(method)}${method}${C.reset}`
+    : method || "";
+
+  return action.name === "request"
+    ? `${action.name} ${methodText} ${action?.payload?.endpoint}`
+    : action.name;
+};
+
 // deno-lint-ignore require-await
 async function updateContext(
   context: Context,
-  data: KvList,
+  action: Action
+  // data: KvList
 ): Promise<ActionResponse> {
+  const actionTitle = `${action.name}: ${Object.keys(action?.payload).join()}`;
+  console.log(actionTitle);
+  const data = action.payload;
   const forbidden = ["history"];
   const unauthorized = Object.keys(data).filter((key) =>
     forbidden.includes(key)
   );
   if (unauthorized.length > 0) {
     throw new Error(
-      `Can not update context value(s) ${unauthorized.join(", ")}`,
+      `Can not update context value(s) ${unauthorized.join(", ")}`
     );
   }
 
   const toMerge = applyMacros(data, context);
   const contextCpy = cloneDeep(context);
 
-  return { context: merge(contextCpy, toMerge) };
+  return { result: true, context: merge(contextCpy, toMerge) };
 }

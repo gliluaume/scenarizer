@@ -4,6 +4,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # genhtml and coverage tools
+      - name: install prerequisites
+        run: apt update && apt intall -y lcov
       - name: Setup repo
         uses: actions/checkout@v3
       - name: Setup Deno

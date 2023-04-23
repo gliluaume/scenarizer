@@ -19,7 +19,6 @@ const applyOnLine = (s: string, envVars: { [key: string]: string }) => {
 
 const applyOnFirst = (s: string, envVars: { [key: string]: string }) => {
   const match = REGEX.exec(s);
-  if (!match) return s;
   const varName = match?.groups?.varName;
   const value = envVars[varName as string] || "";
   return s.replace("${" + varName + "}", value || "");

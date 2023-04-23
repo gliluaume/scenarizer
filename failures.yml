@@ -3,6 +3,8 @@
 init:
   actions:
     - updateContext:
+        settings:
+          # continue: false
         # login: api
         # password: api
         baseUrl: http://localhost:3000
@@ -44,7 +46,7 @@ steps:
           expect:
             status: 200
             headers:
-              x-server: dummy/1.0.0
+              x-server: dummy/1.0.5
   get-cars:
     label: GET all cars
     actions:
@@ -59,11 +61,6 @@ steps:
               [
                 {
                   "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
-                  "brand": "Simca",
-                  "model": "Simca 1000",
-                  "creationDate": "1961-04-13T15:16:53",
-                  "weight": 720,
-                  "maxSpeed": 120
                 }
               ]
   post-cars:
@@ -86,10 +83,10 @@ steps:
               [
                 {
                   "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
-                  "brand": "Simca",
+                  "brand": "XXSimca",
                   "model": "Simca 1000",
                   "creationDate": "1961-04-13T15:16:53",
-                  "weight": 720,
+                  "weight": 99720,
                   "maxSpeed": 120
                 }
               ]
