@@ -1,0 +1,13 @@
+init:
+  actions:
+    - updateContext:
+        baseUrl: http://localhost:3000
+steps:
+  health:
+    label:  health
+    actions:
+      - request:
+          endpoint: /health
+          method: GET
+          expect:
+            status: 201

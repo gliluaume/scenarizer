@@ -1,0 +1,19 @@
+init:
+  actions:
+    - updateContext:
+        baseUrl: https://google.com
+steps:
+  health:
+    label:  health
+    actions:
+      - request:
+          endpoint: /
+          method: GET
+          expect:
+            status: 200
+            body: |
+              {
+                "age": "§match.number 1 foo",
+                "height": "§match.number",
+                "zip": "§match.regex"
+              }
