@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scenarizer</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: '',
+      repo: ''
+    }
+  </script>
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1.22/components/prism-json.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1.22/components/prism-yaml.min.js"></script>
+</body>
+<!--script>
+  const C = {
+    red: "\x1b[31m",
+    green: "\x1b[32m",
+    greenl: "\x1b[1;32m",
+    yellow: "\x1b[33m",
+    blue: "\x1b[34m",
+    magenta: "\x1b[35m",
+    bluel: "\x1b[36m",
+    white: "\x1b[37m",
+    purple: "\x1b[34m",
+    bgRed: "\x1b[41m",
+    bgGreen: "\x1b[42m",
+    bgYellow: "\x1b[43m",
+    bgBlue: "\x1b[44m",
+    bgMagenta: "\x1b[45m",
+    bgWhite: "\x1b[47m",
+    bgBluel: "\x1b[46m",
+    bold: "\x1b[1m",
+    reset: "\x1b[0m",
+};
+
+const regexp = new RegExp(
+    'x1b\\[(' +
+    Object.values(C).map(v => /\x1b\[(?<spec>[\d;]+)m/.exec(v).groups['spec']).join('|') +
+    ')m',
+    'g');
+
+const flappedC = Object.keys(C).reduce((flapped, k) => { flapped[C[k]] = k; return flapped }, {})
+console.log(regexp)
+// Dummy implem
+const replace = (s) => {
+    let html = s;
+    let numOfOpening = 0;
+    let numOfClosing = 0;
+
+    const matches = [...s.matchAll(regexp)];
+    console.log(s)
+    console.log(matches)
+
+    matches.forEach(match => {
+        const style = "\\"+match[0];
+        console.log(style, flappedC)
+        const key = flappedC[style];
+        let val = '';
+        if (key === 'reset') {
+            numOfClosing++;
+            val = '</code>';
+        } else {
+            numOfOpening++;
+            val = `<code class="ansi-${key}">`;
+        }
+        html = html.replace(style, val)
+    });
+
+    if (numOfOpening > numOfClosing) {
+        html += '</code>'.repeat(numOfOpening - numOfClosing);
+    }
+    return html;
+}
+
+function setColors() {
+  [...document.querySelectorAll('.lang-scz')].forEach(elt => {
+    elt.textContent = replace(elt.textContent)
+}) }
+
+// window.onload = setColors;
+window.$docsify = {
+  plugins: [
+    function plugin(hook, vm) {
+      hook.doneEach(function () {
+      console.log('done each')
+      setColors()
+    });
+    },
+  ],
+};
+
+</script-->
+</html>

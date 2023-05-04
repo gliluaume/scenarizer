@@ -4,7 +4,7 @@ init:
   actions:
     - updateContext:
         settings:
-          # continue: false
+          continue: true
         # login: api
         # password: api
         baseUrl: http://localhost:3000
@@ -61,6 +61,7 @@ steps:
               [
                 {
                   "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "additional": "foo"
                 }
               ]
   post-cars:
@@ -72,21 +73,21 @@ steps:
           body: |
               [
                 {
-                  "brand": "Simca",
+                  "brand": "Simca"
                 }
               ]
           expect:
             settings:
               bodyMatch: false
-            status: 201
+            status: 204
             body: |
               [
                 {
                   "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
-                  "brand": "XXSimca",
+                  "brand": "Simca",
                   "model": "Simca 1000",
                   "creationDate": "1961-04-13T15:16:53",
-                  "weight": 99720,
+                  "weight": 720,
                   "maxSpeed": 120
                 }
               ]
