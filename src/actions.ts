@@ -60,8 +60,7 @@ async function request(
     return response;
   } catch (e) {
     console.log("❌ " + actionTitle);
-    if (!context.settings.continue) throw e;
-    else console.log(e.message);
+    console.log(e.message);
     return { result: false, context };
     // throw e;
   }
@@ -202,5 +201,5 @@ async function updateContext(
   const toMerge = applyMacros(data, context);
   const contextCpy = cloneDeep(context);
 
-  return { context: merge(contextCpy, toMerge) };
+  return { result: true, context: merge(contextCpy, toMerge) };
 }

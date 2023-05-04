@@ -65,7 +65,10 @@ export class Scenario {
 
   private async runActions(actions: Action[]) {
     for (const action of actions) {
-      await this.runAction(action);
+      const result = await this.runAction(action);
+      if (result === false && !this.context.settings.continue) {
+        break;
+      }
     }
   }
 
@@ -91,6 +94,7 @@ export class Scenario {
     if (response.context) {
       this.context = response.context;
     }
+    return response.result;
   }
 }
 

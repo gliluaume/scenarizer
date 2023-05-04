@@ -59,4 +59,3 @@ if (scenario.failed) {
 }
 console.log(`${C.bold}Test ${C.green}success!${C.reset}`);
 console.log(`duration: ${scenario.duration} ms`);
-
