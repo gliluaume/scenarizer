@@ -34,7 +34,7 @@ export class Action {
 
 export type ActionFnWithContext = (
   context: Context,
-  payload: Action
+  payload: Action,
 ) => Promise<ActionResponse>;
 
 export type ActionFn = (payload: Object) => Object;
@@ -51,7 +51,7 @@ export const actions: Map<string, ActionFnWithContext> = new Map([
 
 async function request(
   context: Context,
-  action: Action
+  action: Action,
 ): Promise<ActionResponse> {
   const actionTitle = requestActionTitle(action);
   try {
@@ -68,7 +68,7 @@ async function request(
 
 async function _request(
   context: Context,
-  action: Action
+  action: Action,
 ): Promise<ActionResponse> {
   const { endpoint, ...config } = action.payload;
   const headers = new Headers(context.persistentHeaders);
@@ -81,10 +81,9 @@ async function _request(
   const init: RequestInit = { headers, method };
 
   if (config.body) {
-    const bodyStr =
-      typeof config.body === "string"
-        ? config.body
-        : JSON.stringify(config.body);
+    const bodyStr = typeof config.body === "string"
+      ? config.body
+      : JSON.stringify(config.body);
     init.body = new Blob([bodyStr], {
       type: "application/json",
     });
@@ -101,7 +100,7 @@ async function _request(
     assertEquals(
       response.status,
       wrappedStatus,
-      formatStatusError(endpoint, response.status, wrappedStatus)
+      formatStatusError(endpoint, response.status, wrappedStatus),
     );
   }
 
@@ -135,8 +134,9 @@ async function _request(
 // TODO: export assert function to a dedicated module: assertStatus, assertHeader, assertBody
 export const assertBody = (actual: any, expected: any, bodyMatch: boolean) => {
   const matchers = searchForMatchers(expected);
-  const alteredExpected =
-    matchers.length > 0 ? applyMatchers(actual, expected, matchers) : expected;
+  const alteredExpected = matchers.length > 0
+    ? applyMatchers(actual, expected, matchers)
+    : expected;
 
   bodyMatch
     ? assertObjectMatch(actual, alteredExpected)
@@ -147,7 +147,7 @@ const formatScalarError = (
   heading: string,
   endpoint: string,
   actual: string | number,
-  expected: string | number
+  expected: string | number,
 ) => {
   return (
     `${heading} ${C.bold}${endpoint}${C.reset}: ` +
@@ -182,7 +182,7 @@ const requestActionTitle = (action: Action) => {
 // deno-lint-ignore require-await
 async function updateContext(
   context: Context,
-  action: Action
+  action: Action,
   // data: KvList
 ): Promise<ActionResponse> {
   const actionTitle = `${action.name}: ${Object.keys(action?.payload).join()}`;
@@ -194,7 +194,7 @@ async function updateContext(
   );
   if (unauthorized.length > 0) {
     throw new Error(
-      `Can not update context value(s) ${unauthorized.join(", ")}`
+      `Can not update context value(s) ${unauthorized.join(", ")}`,
     );
   }
 

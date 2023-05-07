@@ -14,20 +14,18 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-const handle =
-  (statusCode = 200) =>
-  (_req: Request, res: Response) => {
-    res.status(statusCode).send([
-      {
-        id: "61469a43-994f-40ab-a81f-e02ee40adf92",
-        brand: "Simca",
-        model: "Simca 1000",
-        creationDate: "1961-04-13T15:16:53",
-        weight: 720,
-        maxSpeed: 120,
-      },
-    ]);
-  };
+const handle = (statusCode = 200) => (_req: Request, res: Response) => {
+  res.status(statusCode).send([
+    {
+      id: "61469a43-994f-40ab-a81f-e02ee40adf92",
+      brand: "Simca",
+      model: "Simca 1000",
+      creationDate: "1961-04-13T15:16:53",
+      weight: 720,
+      maxSpeed: 120,
+    },
+  ]);
+};
 
 app.post("/cars", handle(201));
 app.all("/cars", handle());

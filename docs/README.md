@@ -20,24 +20,7 @@ It fails on first unexpected error or on failed expectation.
 ## Usage
 run
 ```
-❯ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\scenario.yml
-```
-
-Deployment (no Ci for now):
-manual tag
-```
-git tag X.Y.Z && git push-tags
-```
-
-build docker image:
-```
-docker build --tag gliluaume/scenarizer:X.Y.Z .
-```
-
-publish docker image
-```
-docker login
-docker push gliluaume/scenarizer:X.Y.Z
+$ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\scenario.yml
 ```
 
 ## Overview
@@ -182,56 +165,22 @@ steps:
 
 
 # File validation
-```bash
-steps.step1.action.request.expect.body:
-  1: Number params: Bad param types, number expected, given: zer
-    1: {
-    2:   "age": "§match.number zer",
-    3:   "name": "§match.regexp ^[a-z]+$",
-…
-steps.step2.action.request.expect.body:
-  1: Exactly one string param expected
-  3: Number params: Bad param types, number expected, given: rrr
-    1: {
-    2:   "name": "§match.regexp",
-    3:   "age": 33,
-    4:   "height": "§match.number rrr"
-    5: }
-…
-```
+
+**Invalid schema**
+
+[filename]( output-samples/invalid-schema.html ':include height=390')
 
 # Assertions failures
-## Status code
-```scz
-Running health: health
-request GET /
-status /: (actual) \x1b[31m200\x1b[0m != 201 (expected)
-Test suite failed.
-```
+Here are examples of errors rendering.
 
-![missing image](images/assertion-status-code.png "Status code assertion failed")
+**Status code**
 
-## Headers
-```scz-assertion
-Running health: health
-request GET /
-header hello: (actual) null != world (expected)
-Test suite failed.
-```
+[filename]( output-samples/assertion-status.html ':include height=132')
 
-## Body
-```scz-assertion
-error: AssertionError: Values are not equal:
+**Headers**
 
+[filename]( output-samples/assertion-header.html ':include height=132')
 
-    [Diff] Actual / Expected
+**Body**
 
-
-    [
-      {
--       creationDate: "1963-04-13T15:16:54",
-+       creationDate: "1963-04-13T15:16:53",
-        id: 1000,
-      },
-    ]
-```
+[filename]( output-samples/assertion-body.html ':include height=390')

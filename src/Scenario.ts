@@ -60,7 +60,7 @@ export class Scenario {
   }
 
   public get failed() {
-    return this.context.history.some((entry => !entry.result));
+    return this.context.history.some((entry) => !entry.result);
   }
 
   private async runActions(actions: Action[]) {
