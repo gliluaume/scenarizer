@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "start": "deno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts",
+    "fmt": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs/README.md",
+    "test": "deno test --allow-all"
+  }
+}

@@ -29,3 +29,8 @@ publish docker image
 docker login
 docker push gliluaume/scenarizer:X.Y.Z
 ```
+
+update doc
+```
+ bash saurus.sh run docs/samples/assertion-body.yml | ansi2html > docs/output-samples/assertion-body.html
+ ```
