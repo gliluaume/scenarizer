@@ -43,11 +43,27 @@ This is the first step of a scenario.
 
 ### Context
 
-TODO
+Allows having any key to describe the context object. Some predefined entries are:
+```
+  baseUrl?: string;
+  login?: string;
+  password?: string;
+  persistentHeaders?: HeadersInit;
+  history: HistoryEntry[];
+  settings: {
+    continue: boolean;
+  };
+```
 
 ### Request hook
 
-TODO
+Configuration
+
+| key | type | description |
+|:--|:--|:--|
+| status | number | status code check to trigger hook |
+| action | Action | action to be run |
+| replay | boolean | re-run previous request or not |
 
 ### Macros
 
