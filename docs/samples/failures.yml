@@ -4,7 +4,7 @@ init:
   actions:
     - updateContext:
         settings:
-          continue: true
+          continue: false
         # login: api
         # password: api
         baseUrl: http://localhost:3000

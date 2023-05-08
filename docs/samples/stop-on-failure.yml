@@ -1,0 +1,25 @@
+init:
+  actions:
+    - updateContext:
+        settings:
+          continue: false
+        baseUrl: http://localhost:3000
+steps:
+  health-ko:
+    label:  health not ok
+    actions:
+      - request:
+          endpoint: /health
+          method: GET
+          expect:
+            status: 201
+            headers:
+              x-server: dummy/1.0.5
+  health:
+    label:  health
+    actions:
+      - request:
+          endpoint: /health
+          method: GET
+          expect:
+            status: 200

@@ -55,7 +55,10 @@ export class Scenario {
       console.log(
         `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`,
       );
-      await this.runActions(step.actions);
+      const result = await this.runActions(step.actions);
+      if (result === false && !this.context.settings.continue) {
+        return false;
+      }
     }
   }
 
@@ -67,14 +70,13 @@ export class Scenario {
     for (const action of actions) {
       const result = await this.runAction(action);
       if (result === false && !this.context.settings.continue) {
-        break;
+        return false;
       }
     }
   }
 
   private async runAction(action: Action) {
     action = applyMacros(action as unknown as KvList, this.context);
-    // console.log(`\r✔️ ` + this.actionTitle(action));
     const response = await action.handler(this.context, action);
     this.context.history.push(new HistoryEntry(action, response.result));
 
