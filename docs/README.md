@@ -1,29 +1,38 @@
-# Scenarizer
+# Overview
 
-This tools supports only HTTP APIs that handle JSON messages.
+This is a tool to sequentially send request and make assertions on responses.
 
-This is useful to handle a sequential set of requests and make exhaustive assertions on what is expected as response.
+Manifesto:
+- write functional test scenarios using a clean configuration file and reduce coding to the minimum
+- scenario describe only what is required to make requests
+- assertions are easy to write with the intention to be as complete as possible (full document validation) but letting the possibility to the user to compare subsets or template response (matchers and body match).
+- should be as simple as possible
+- CLI available (easy to run in a CI)
 
+This tool targets APIs that take and return JSON content.
 
-**Features overview:**
+## Features
 - compare actual and expected on status code, headers and body
-- behave like an stateful HTTP client
 - hooks on responses: launch actions on response status, optionally re-run previous request
+- store a state of the client (context)
 - store actions and result history
 - handles environment variables as "${ENV_NAME}" every where in yaml file.
 - macros to access data in context (history and current state)
+- matcher to provide template matching on responses
 
-**Behavior**
-It fails on first unexpected error or on failed expectation.
+## Alternatives
+* [artillery](https://www.artillery.io): multi-protocol, load-testing oriented
+* [postman / newman](https://blog.postman.com/meet-newman-a-command-line-companion-for-postman/)
 
+# Get started
 
 ## Usage
 run
-```
-$ deno run --allow-read --allow-net --unsafely-ignore-certificate-errors .\src\index.ts .\scenario.yml
+```bash
+$ deno task start .\scenario.yml
 ```
 
-## Overview
+## Scenario
 
 A scenario is a set of elements:
 - init: a special action run at startup
@@ -35,11 +44,25 @@ Macros are special keywords:
 - `§context`: to access to the context (eg. `§context.login` is a shortcut to the login set in the scenario's context)
 - `§previous`: a shortcut to access the previous step in the history of results
 
-## Scenario file reference
+Matchers are to be included in expectations to provide a loose comparison.
+
+## Schema reference
 
 ### Init
 
-This is the first step of a scenario.
+This is the first step of a scenario. This is the place where behavior can be configured.
+Example:
+```yaml
+init:
+  actions:
+    - updateContext:
+        settings:
+          continue: false
+        baseUrl: ${BASE_URL}
+```
+Details:
+- `settings:continue: false` that indicates assertion failure will not stop the scenario
+- `baseUrl: ${BASE_URL}`: defines the base url as the value of the environment variable `${BASE_URL}`
 
 ### Context
 
@@ -65,13 +88,91 @@ Configuration
 | action | Action | action to be run |
 | replay | boolean | re-run previous request or not |
 
+Example
+```yaml
+requestHook:
+  status: 401
+  replay: true
+  action:
+    request:
+      endpoint: /api/authentication/refresh
+      method: POST
+      body:
+        login: §context.login
+        password: §context.password
+```
+Explanation:
+* for any response with a **401** status code
+* run defined request in hook
+* re-run previous request (`replay: true`)
+
 ### Macros
 
-TODO
+Use macros to access data set in context or history
+
+```yaml
+steps:
+  login:
+    label: first login
+    actions:
+      - request:
+          endpoint: /api/authentication/login
+          method: POST
+          body:
+            login: §context.login
+            password: §context.password
+          expect:
+            status: 201
+      - updateContext:
+          persistentHeaders:
+            authorization: Bearer §previous.result.body.token
+            deviceId: §previous.result.body.deviceId
+```
+Explanation:
+* request takes `login` and `password` from context
+* update context action set header values from previous response body as `token` and `deviceId`.
 
 ### Matchers
 
-TODO
+ - closeDate
+ - date: any date
+ - number [min] [max]: a number, a number >= min, a number <= max
+ - regexp [pattern]: a string, a string matchin a pattern
+ - uuid: any uuid, uuid/V4, guid, etc. could be a shorthand of a specific case of the previous one
+
+Example:
+```yml
+steps:
+  health:
+    label:  health
+    actions:
+      - request:
+          endpoint: /
+          method: GET
+          expect:
+            body: |
+              {
+                "age": "§match.number 1",
+                "height": "175"
+              }
+```
+
+This would match a response body with `age` property as number greater than 1.
+
+### Environment variables
+Environment variables must follow bash syntax with enclosing curly braces like `${VAR}`.
+
+```yaml
+init:
+  actions:
+    - updateContext:
+        login: api
+        password: ${PASSWORD}
+        baseUrl: http://localhost:3005
+        persistentHeaders:
+          user-agent: test-agent/1.0.0
+```
+Context is updated by setting password as the current value of the environment variable named `PASSWORD`
 
 ### Actions
 Types of actions:
@@ -100,7 +201,6 @@ Takes:
 #### Update context Action
 
 Just sets values in the context.
-
 
 ## Example
 ```yaml
@@ -181,6 +281,8 @@ steps:
 
 
 # File validation
+
+[Complete schema definition](schema.md)
 
 **Invalid schema**
 

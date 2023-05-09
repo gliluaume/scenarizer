@@ -1,0 +1,3 @@
+## bodyMatch Type
+
+`boolean`
