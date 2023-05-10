@@ -15,7 +15,8 @@ jobs:
         with:
           deno-version: v1.x
       - name: Verify formatting
-        run: deno fmt --ignore=CHANGELOG.md,Readme.md,docs/README.md --check
+        run: deno task fmt:check
+      #   run: deno fmt --ignore=CHANGELOG.md,Readme.md,docs --check
       # - name: Run linter
       #   run: deno lint
       - name: Run tests
