@@ -1,13 +1,17 @@
-import { ActionFnWithContext, actions } from "./actions.ts";
+import { Action } from "./actions.ts";
 import { Context, HistoryEntry } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
-import { C, methodsColors } from "./formatting.ts";
+import { C } from "./formatting.ts";
 
 export class Scenario {
   public init: Action[];
   public requestHook?: RequestHook;
   public steps: Step[];
   private context: Context;
+
+  public get duration() {
+    return performance.now();
+  }
 
   public get data() {
     return this.hideSensitive(this.context);
@@ -40,7 +44,7 @@ export class Scenario {
       ? new RequestHook(data.requestHook)
       : undefined;
     this.steps = Object.keys(data.steps).map(
-      (name: string) => new Step(name, data.steps[name])
+      (name: string) => new Step(name, data.steps[name]),
     );
   }
 
@@ -49,22 +53,31 @@ export class Scenario {
     await this.runActions(this.init);
     for (const step of this.steps) {
       console.log(
-        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`
+        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`,
       );
-      await this.runActions(step.actions);
+      const result = await this.runActions(step.actions);
+      if (result === false && !this.context.settings.continue) {
+        return false;
+      }
     }
+  }
+
+  public get failed() {
+    return this.context.history.some((entry) => !entry.result);
   }
 
   private async runActions(actions: Action[]) {
     for (const action of actions) {
-      await this.runAction(action);
+      const result = await this.runAction(action);
+      if (result === false && !this.context.settings.continue) {
+        return false;
+      }
     }
   }
 
   private async runAction(action: Action) {
     action = applyMacros(action as unknown as KvList, this.context);
-    console.log(this.actionTitle(action));
-    const response = await action.handler(this.context, action.payload);
+    const response = await action.handler(this.context, action);
     this.context.history.push(new HistoryEntry(action, response.result));
 
     if (
@@ -83,20 +96,7 @@ export class Scenario {
     if (response.context) {
       this.context = response.context;
     }
-  }
-
-  private actionTitle(action: Action) {
-    if (action.name === "updateContext")
-      return `${action.name}: ${Object.keys(action?.payload).join()}`;
-
-    const method = action?.payload?.method!;
-    const methodText= methodsColors.has(method)
-      ? `${methodsColors.get(method)}${method}${C.reset}`
-      : method || '';
-
-    return action.name === "request"
-      ? `${action.name} ${methodText} ${action?.payload?.endpoint}`
-      : action.name;
+    return response.result;
   }
 }
 
@@ -140,25 +140,5 @@ export class RequestHook {
     this.status = data.status;
     this.action = new Action(data.action);
     this.replay = !!data?.replay;
-  }
-}
-
-export class Action {
-  public handler: ActionFnWithContext;
-  public payload: any;
-  public get name() {
-    return this.handler.name;
-  }
-
-  constructor(data: any) {
-    if (Object.keys(data).length !== 1) {
-      throw new Error("Only one key expected");
-    }
-
-    const name = Object.keys(data)[0];
-    if (!actions.has(name)) throw new Error(`Unknown action ${name}`);
-
-    this.handler = actions.get(name) as ActionFnWithContext;
-    this.payload = data[name];
   }
 }

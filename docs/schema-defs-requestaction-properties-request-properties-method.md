@@ -1,0 +1,3 @@
+## method Type
+
+`string`

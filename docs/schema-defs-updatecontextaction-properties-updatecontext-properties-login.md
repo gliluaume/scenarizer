@@ -1,0 +1,3 @@
+## login Type
+
+`string`

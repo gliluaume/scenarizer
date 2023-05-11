@@ -1,0 +1,24 @@
+name: unit-test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # genhtml and coverage tools
+      # - name: install prerequisites
+      #   run: apt update && apt install -y lcov
+      - name: Setup repo
+        uses: actions/checkout@v3
+      - name: Setup Deno
+        # uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+        with:
+          deno-version: v1.x
+      - name: Verify formatting
+        run: deno task fmt:check
+      #   run: deno fmt --ignore=CHANGELOG.md,Readme.md,docs --check
+      # - name: Run linter
+      #   run: deno lint
+      - name: Run tests
+        run: deno test
+  #     - run: deno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts dummy.yml

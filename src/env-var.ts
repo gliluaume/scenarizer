@@ -1,6 +1,9 @@
 export const REGEX = /[^\\\$]*(\$\{(?<varName>[_A-Za-z0-1]*)\})[^\\\$]*/;
 // Dirty, with the limitation of 5 env var by line
-export const applyEnv = (origin: string, envVars: { [key: string]: string }) => {
+export const applyEnv = (
+  origin: string,
+  envVars: { [key: string]: string },
+) => {
   return origin
     .split("\n")
     .map((line) => applyOnLine(line, envVars))
@@ -16,7 +19,6 @@ const applyOnLine = (s: string, envVars: { [key: string]: string }) => {
 
 const applyOnFirst = (s: string, envVars: { [key: string]: string }) => {
   const match = REGEX.exec(s);
-  if (!match) return s;
   const varName = match?.groups?.varName;
   const value = envVars[varName as string] || "";
   return s.replace("${" + varName + "}", value || "");

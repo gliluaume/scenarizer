@@ -3,64 +3,153 @@
 init:
   actions:
     - updateContext:
-        login: api
-        password: api
-        baseUrl: http://localhost:3005
-        persistentHeaders:
-          user-agent: test/0.4
-requestHook:
-  status: 401
-  replay: true
-  action:
-    request:
-      endpoint: /api/authentication/refresh
-      method: POST
-      body:
-        login: §context.login
-        password: §context.password
+        # login: api
+        # password: api
+        baseUrl: http://localhost:3002
+        # persistentHeaders:
+        #   user-agent: test/0.4
+# requestHook:
+#   status: 401
+#   replay: true
+#   action:
+#     request:
+#       endpoint: /api/authentication/refresh
+#       method: POST
+#       body:
+#         login: §context.login
+#         password: §context.password
 
 steps:
-  login: # this is the step name
-    label: first login
-    actions:
-      - request:
-          endpoint: /api/authentication/login
-          method: POST
-          body:
-            login: §context.login
-            password: §context.password
-          expect:
-            status: 200
-      - updateContext:
-          persistentHeaders:
-            authorization: Bearer §previous.result.body.token
-            deviceId: §previous.result.body.deviceId
+  # login: # this is the step name
+  #   label: first login
+  #   actions:
+  #     - request:
+  #         endpoint: /api/authentication/login
+  #         method: POST
+  #         body:
+  #           login: §context.login
+  #           password: §context.password
+  #         expect:
+  #           status: 200
+  #     - updateContext:
+  #         persistentHeaders:
+  #           authorization: Bearer §previous.result.body.token
+  #           deviceId: §previous.result.body.deviceId
   deep-health:
-    label: Deep health
+    label: health check
     actions:
       - request:
           endpoint: /health
           method: GET
-
-  cars-200:
-    label: Home page
+          expect:
+            status: 200
+            headers:
+              x-server: dummy/1.0.0
+  get-cars:
+    label: GET all cars
     actions:
       - request:
-          endpoint: /api/cars
+          endpoint: /cars
           query:
             brand: simca
           method: GET
           expect:
-            settings:
-              bodyMatch: true
             status: 200
-            headers:
-              x-paging-pages-total: 0
-              x-paging-pages-current: 0
             body: |
               [
                 {
-                  "id": 1000,
-                  "creationDate": "1963-04-13T15:16:53"
-                },
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
               ]
+  post-cars:
+    label: POST cars
+    actions:
+      - request:
+          method: POST
+          endpoint: /cars
+          body: |
+              [
+                {
+                  "brand": "Simca",
+                }
+              ]
+          expect:
+            settings:
+              bodyMatch: false
+            status: 201
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
+              ]
+  put-cars:
+    label: PUT cars
+    actions:
+      - request:
+          method: PUT
+          endpoint: /cars
+          body: |
+              [
+                {
+                  "brand": "Simca",
+                }
+              ]
+          expect:
+            settings:
+              bodyMatch: false # TODO there seems to be a bug here with body match
+            status: 200
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
+              ]
+  patch-cars:
+    label: PATCH cars
+    actions:
+      - request:
+          method: PATCH
+          endpoint: /cars
+          body: |
+              [
+                {
+                  "brand": "Simca",
+                }
+              ]
+          expect:
+            status: 200
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
+              ]
+  delete-cars:
+    label: DELETE cars
+    actions:
+      - request:
+          method: DELETE
+          endpoint: /cars
+          expect:
+            status: 200

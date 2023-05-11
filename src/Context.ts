@@ -1,4 +1,4 @@
-import { Action } from "./Scenario.ts";
+import { Action } from "./actions.ts";
 
 export class Context {
   public baseUrl?: string;
@@ -6,6 +6,9 @@ export class Context {
   public password?: string;
   public persistentHeaders?: HeadersInit;
   public history: HistoryEntry[];
+  public settings: {
+    continue: boolean;
+  };
 
   public get last() {
     return this.history[this.history.length - 1];
@@ -13,6 +16,7 @@ export class Context {
 
   constructor() {
     this.history = [];
+    this.settings = { continue: false };
   }
 }
 

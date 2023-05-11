@@ -19,7 +19,7 @@ export const formatErrors = (errors: ErrorObject[]) => {
     .map(
       (error) =>
         `${C.bold}${error.dataPath}${C.reset}: ` +
-        `${error.message}, given: ${formatActual(error.data)}`
+        `${error.message}, given: ${formatActual(error.data)}`,
     )
     .join("\n");
 };

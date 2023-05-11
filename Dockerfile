@@ -1,6 +1,6 @@
 FROM denoland/deno:1.32.1
 
-RUN echo '#!/bin/bash\n\ndeno run --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors /app/index.ts $*' > /bin/scz
+RUN echo '#!/bin/bash\n\ndeno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors /app/index.ts $*' > /bin/scz
 RUN chmod +x /bin/scz
 
 # RUN echo 'alias scz="deno run --allow-read --allow-net --unsafely-ignore-certificate-errors /app/index.ts"' > /home/.bashrc
