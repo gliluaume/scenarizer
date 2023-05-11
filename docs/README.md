@@ -202,83 +202,15 @@ Takes:
 
 Just sets values in the context.
 
-## Example
-```yaml
-init:
-  actions:
-    - updateContext:
-        login: api
-        password: ${PASSWORD}
-        baseUrl: http://localhost:3005
-        persistentHeaders:
-          user-agent: test-agent/1.0.0
-requestHook:
-  status: 401
-  replay: true
-  action:
-    request:
-      endpoint: /api/authentication/refresh
-      method: POST
-      body:
-        login: §context.login
-        password: §context.password
+# Example
 
-steps:
-  login:
-    label: first login
-    actions:
-      - request:
-          endpoint: /api/authentication/login
-          method: POST
-          body:
-            login: §context.login
-            password: §context.password
-          expect:
-            status: 201
-      - updateContext:
-          persistentHeaders:
-            authorization: Bearer §previous.result.body.token
-            deviceId: §previous.result.body.deviceId
-  deep-health:
-    label: Deep health
-    actions:
-      - request:
-          endpoint: /health
-          method: GET
-  stuff:
-    label: Fetching single stuff
-    actions:
-      - request:
-          endpoint: /api/stuffs/7610cafc-8037-404c-b498-5255b6bc7c52
-          method: GET
-          expect:
-            settings:
-              bodyMatch: true
-            status: 200
-            headers:
-              x-my-custom-data: "a value"
-            body: |
-              {
-                "id": "7610cafc-8037-404c-b498-5255b6bc7c52",
-                "name": "first-one",
-                "type": "stuff-a",
-              }
-  stuffs:
-    label: Fetching multiple stuffs
-    actions:
-      - request:
-          endpoint: /api/stuffs/
-          query:
-            type: flower
-          method: GET
-          expect:
-            status: 200
-            headers:
-              x-my-custom-data: "a value"
-            body: |
-              []
-```
+## Input file sample
 
+[filename](samples/scenario.yml ':include')
+
+## Output
+
+[filename](output-samples/all-ok.html ':include height=290')
 
 # File validation
 
@@ -286,19 +218,20 @@ steps:
 
 **Invalid schema**
 
-[filename]( output-samples/invalid-schema.html ':include height=390')
+[filename](output-samples/invalid-schema.html ':include height=392')
 
 # Assertions failures
 Here are examples of errors rendering.
 
 **Status code**
 
-[filename]( output-samples/assertion-status.html ':include height=132')
+[filename](output-samples/assertion-status.html ':include height=134')
 
 **Headers**
 
-[filename]( output-samples/assertion-header.html ':include height=132')
+[filename](output-samples/assertion-header.html ':include height=134')
 
 **Body**
 
-[filename]( output-samples/assertion-body.html ':include height=390')
+[filename](output-samples/assertion-body.html ':include height=392')
+

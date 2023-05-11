@@ -1,40 +1,8 @@
-# Scenario for action workflow like a behavioral test
-
 init:
   actions:
     - updateContext:
-        # login: api
-        # password: api
         baseUrl: http://localhost:3002
-        # persistentHeaders:
-        #   user-agent: test/0.4
-# requestHook:
-#   status: 401
-#   replay: true
-#   action:
-#     request:
-#       endpoint: /api/authentication/refresh
-#       method: POST
-#       body:
-#         login: §context.login
-#         password: §context.password
-
 steps:
-  # login: # this is the step name
-  #   label: first login
-  #   actions:
-  #     - request:
-  #         endpoint: /api/authentication/login
-  #         method: POST
-  #         body:
-  #           login: §context.login
-  #           password: §context.password
-  #         expect:
-  #           status: 200
-  #     - updateContext:
-  #         persistentHeaders:
-  #           authorization: Bearer §previous.result.body.token
-  #           deviceId: §previous.result.body.deviceId
   deep-health:
     label: health check
     actions:
@@ -107,7 +75,7 @@ steps:
               ]
           expect:
             settings:
-              bodyMatch: false # TODO there seems to be a bug here with body match
+              bodyMatch: false
             status: 200
             body: |
               [

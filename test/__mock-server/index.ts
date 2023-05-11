@@ -3,7 +3,7 @@
 import express, { Request, Response } from "npm:express@4.18.2";
 
 const app = express();
-const port = Number(Deno.env.get("PORT")) || 3000;
+const port = Number(Deno.env.get("PORT")) || 3002;
 
 app.get("/health", (_req: Request, res: Response) => {
   res.set("x-server", "dummy/1.0.0");

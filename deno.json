@@ -5,6 +5,7 @@
     "fmt:check": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs --check",
     "test": "deno test --allow-all",
     "docs": "jsonschema2md --input src/ --schema-extension json --header false --out docs -n",
-    "docs:serve": "docsify serve docs"
+    "docs:serve": "docsify serve docs",
+    "mock-server": "deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts"
   }
 }
