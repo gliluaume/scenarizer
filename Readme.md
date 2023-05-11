@@ -7,7 +7,7 @@ This is useful to handle a sequential set of requests and make exhaustive assert
 See documentation [here](https://gliluaume.github.io/scenarizer).
 
 
-##  Starting
+##  Dev notes
 run
 ```bash
 $ deno task start .\scenario.yml
@@ -32,5 +32,5 @@ docker push gliluaume/scenarizer:X.Y.Z
 
 update doc
 ```bash
- bash saurus.sh run docs/samples/assertion-body.yml | ansi2html > docs/output-samples/assertion-body.html
- ```
+$ deno task start docs/samples/assertion-body.yml | ansi2html > docs/output-samples/assertion-body.html
+```
