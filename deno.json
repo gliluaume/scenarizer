@@ -6,6 +6,7 @@
     "test": "deno test --allow-all",
     "docs": "jsonschema2md --input src/ --schema-extension json --header false --out docs -n",
     "docs:serve": "docsify serve docs",
-    "mock-server": "deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts"
+    "mock-server": "deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts",
+    "gen-icon": "node utils/icon.js > utils/icon.svg"
   }
 }

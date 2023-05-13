@@ -1,4 +1,13 @@
-# Scenarizer
+<div align="center">
+	<img src="docs/icon.ico" width="200" height="200">
+	<h1>Scenarizer</h1>
+	<p>
+		<b>Test JSON API</b>
+	</p>
+	<br>
+	<br>
+	<br>
+</div>
 
 This tools supports only HTTP APIs that handle JSON messages.
 
