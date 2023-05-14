@@ -1,0 +1,33 @@
+<svg width="250" height="250" xmlns="http://www.w3.org/2000/svg">
+  <path d="
+        M 120 80
+        H 198
+        A 100 100 0 0 1 180 160
+        Z"
+        fill="green"
+        style="stroke: white; stroke-width: 5;"
+    />
+
+
+  <circle cx="100" cy="100" r="100" fill="none" stroke="black"/>
+
+  <!-- Points -->
+  <circle cx="11.54700538379251" cy="20" r="2" fill="red"/>
+  <circle cx="21.547005383792516" cy="0" r="2" fill="red"/>
+  <!-- <circle cx="90" cy="90" r="2" fill="red"/>
+  <circle cx="90" cy="10" r="2" fill="red"/>
+  <circle cx="10" cy="90" r="2" fill="red"/> -->
+
+
+<!--
+  <path d="M 10 10 C 20 20, 40 20, 50 10" stroke="black" fill="transparent"/>
+  <path d="M 70 10 C 70 20, 110 20, 110 10" stroke="black" fill="transparent"/>
+  <path d="M 130 10 C 120 20, 180 20, 170 10" stroke="black" fill="transparent"/>
+  <path d="M 10 60 C 20 80, 40 80, 50 60" stroke="black" fill="transparent"/>
+  <path d="M 70 60 C 70 80, 110 80, 110 60" stroke="black" fill="transparent"/>
+  <path d="M 130 60 C 120 80, 180 80, 170 60" stroke="black" fill="transparent"/>
+  <path d="M 10 110 C 20 140, 40 140, 50 110" stroke="black" fill="transparent"/>
+  <path d="M 70 110 C 70 140, 110 140, 110 110" stroke="black" fill="transparent"/>
+  <path d="M 130 110 C 120 140, 180 140, 170 110" stroke="black" fill="transparent"/> -->
+
+</svg>

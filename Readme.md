@@ -1,8 +1,17 @@
-# Scenarizer
+<div align="center">
+	<img src="docs/icon.ico" width="200" height="200">
+	<h1>Scenarizer</h1>
+	<p>
+		<b>Web API testing tool</b>
+	</p>
+	<br>
+	<br>
+	<br>
+</div>
 
-This tools supports only HTTP APIs that handle JSON messages.
+Supports only HTTP APIs that handle JSON content.
 
-This is useful to handle a sequential set of requests and make exhaustive assertions on what is expected as response.
+Useful to handle a sequential set of requests, handle an application state and make exhaustive assertions on what is expected as response.
 
 See documentation [here](https://gliluaume.github.io/scenarizer).
 
