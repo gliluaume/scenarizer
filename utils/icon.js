@@ -67,7 +67,7 @@ const camembert = (r, a) => {
     const xC = (4 * a * (1 + 2 / Math.sqrt(3)) + Math.sqrt(20 * r * r - 4 * a * a * Math.pow((1 + 2 / Math.sqrt(3)), 2))) / 10;
     //const yC = Math.sqrt(r * r - xC * xC);
     const yC = - Math.sqrt(r * r - xC * xC);
-    const C = { x: xC, y: yC + 2.3};
+    const C = { x: xC, y: yC + 3.14};
 
 
     return [A, B, C, Ap];
@@ -137,7 +137,7 @@ const draw = (r, a, b) => {
         <svg viewbox="0 0 ${2 * r} ${2 * r}" xmlns="http://www.w3.org/2000/svg" style="background: black;">
         <circle cx="${r}" cy="${r}" r="${r/3}" fill="white" style="stroke-width: 0;"/>
         ${paths.join('\n')}
-        <text x="${r/10 - 4 + b/10}" y="${3+r/10 + b/10}" transform="scale(10,10)">{}</text>
+        <text x="${r/10 - 5 + b/10}" y="${3+r/10 -1 + + b/10}" transform="scale(10,10)">{}</text>
         ${false && cams.map((c, i)=>camPoints(c, colors[i])).join('\n')}
         </svg>
     `
@@ -163,5 +163,5 @@ const draw = (r, a, b) => {
 
 
 // console.log(draw(400, 80, 20))
-const svg = draw(400, 80, 10);
+const svg = draw(400, 100, 30);
 await Deno.writeTextFileSync("utils/icon.svg", svg);
