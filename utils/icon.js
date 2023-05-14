@@ -33,14 +33,6 @@ const swaggerColors = {
     options: "#0d5aa7",
 };
 
-
-
-
-
-
-
-
-
 const camembert = (r, a) => {
     // const center = { x: r, y: r };
 
@@ -64,16 +56,18 @@ const camembert = (r, a) => {
 
 
     // premier camembert
-    const A = { x: a / Math.sqrt(3), y: a };
+    // On applique des corrections empiriques sur les Y : -10 pour A et B et + 2.3 pour C
+    // TODO: corriger, il doit y avoir une erreur de calcul quelque part
+    const A = { x: a / Math.sqrt(3), y: a - 10};
     const Ap = { x: a * (1 / 2 + 1 / Math.sqrt(3)), y: 0 }
-    const B = { x: Math.sqrt(r * r - a * a), y: a };
+    const B = { x: Math.sqrt(r * r - a * a), y: a - 10 };
     const delta = 20 * r * r - 4 * a * a * (1 + 2 / Math.sqrt(3))
 
     if (delta <= 0) throw new Error("Invalid params. a too large in comparison with r");
     const xC = (4 * a * (1 + 2 / Math.sqrt(3)) + Math.sqrt(20 * r * r - 4 * a * a * Math.pow((1 + 2 / Math.sqrt(3)), 2))) / 10;
     //const yC = Math.sqrt(r * r - xC * xC);
     const yC = - Math.sqrt(r * r - xC * xC);
-    const C = { x: xC, y: yC };
+    const C = { x: xC, y: yC + 2.3};
 
 
     return [A, B, C, Ap];
@@ -126,8 +120,8 @@ const draw = (r, a, b) => {
         .map((i) =>
             camOne
                 .map(point => rotateFromO(i * Math.PI / 3, point))
-                .map(point => translate({ a: r, b: r }, symY0(point)))
-        );
+                .map(point => translate({ a: r + b/2, b: r + b/2}, symY0(point)))
+        ).reverse()   ;
     // const colors = ["red", "green", "blue", "yellow", "grey", "fuschia"]
     const colors = [
         swaggerColors.head,
@@ -138,12 +132,13 @@ const draw = (r, a, b) => {
         swaggerColors.delete,
     ];
     const paths = cams.map((c, i) => camSvg(c, r, colors[i], b));
+//    <svg width="${2 * r}" height="${2 * r}" xmlns="http://www.w3.org/2000/svg" style="background: black;">
     return `
-        <svg width="${2 * r}" height="${2 * r}" xmlns="http://www.w3.org/2000/svg">
+        <svg viewbox="0 0 ${2 * r} ${2 * r}" xmlns="http://www.w3.org/2000/svg" style="background: black;">
         <circle cx="${r}" cy="${r}" r="${r/3}" fill="white" style="stroke-width: 0;"/>
         ${paths.join('\n')}
-        <text x="${r/10 - 4}" y="${3+r/10}" transform="scale(10,10)">{}</text>
-        ${false && cams.map((p, i)=>camPoints(p, colors[i])).join('\n')}
+        <text x="${r/10 - 4 + b/10}" y="${3+r/10 + b/10}" transform="scale(10,10)">{}</text>
+        ${false && cams.map((c, i)=>camPoints(c, colors[i])).join('\n')}
         </svg>
     `
 
@@ -167,5 +162,6 @@ const draw = (r, a, b) => {
 }
 
 
-console.log(draw(400, 80, 20))
-
+// console.log(draw(400, 80, 20))
+const svg = draw(400, 80, 10);
+await Deno.writeTextFileSync("utils/icon.svg", svg);
