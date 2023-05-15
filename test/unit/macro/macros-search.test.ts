@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
-import { KvList, searchForMacros } from "../../src/macros.ts";
+import { KvList, searchForMacros } from "../../../src/macros.ts";
 
 Deno.test("searchForMacros simple", () => {
   const input: KvList = {

@@ -1,7 +1,7 @@
 import { stub } from "https://deno.land/std@0.165.0/testing/mock.ts";
-import { tools } from "../../src/tools.ts";
+import { tools } from "../../../src/tools.ts";
 import { cloneDeep } from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
-import { assertBody } from "../../src/actions.ts";
+import { assertBody } from "../../../src/actions.ts";
 import { assertThrows } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 
 stub(tools, "now", () => new Date("2018-09-13T15:16:00.000"));

@@ -3,7 +3,7 @@ import {
   checkScenarioData,
   checkSyntax,
   formatMatchersErrors,
-} from "../../src/matchers.ts";
+} from "../../../src/matchers.ts";
 
 const jsonBody = `
   [
