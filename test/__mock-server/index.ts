@@ -1,9 +1,24 @@
 // deno run --allow-read --allow-env --allow-net index.ts
-
 import express, { Request, Response, NextFunction } from "npm:express@4.18.2";
+import swaggerUi from "npm:swagger-ui-express@4.6.3"
+import swagger from "./swagger.json" assert { type: "json" };
 
 const app = express();
 const port = Number(Deno.env.get("PORT")) || 3002;
+
+
+const options = {
+  customJs: [
+    '/custom.js',
+    'https://example.com/other-custom.js'
+  ]
+};
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swagger, options)
+);
 
 app.use((req: Request, _res: Response, next: NextFunction)=> {
   console.log(req.method, req.originalUrl);
