@@ -1,18 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.104.0/testing/asserts.ts";
-
-const mockCmd = (port: number) =>
-  new Deno.Command(Deno.execPath(), {
-    env: { PORT: port.toString() },
-    args: [
-      "run",
-      "--allow-read",
-      "--allow-env",
-      "--allow-net",
-      "test/__mock-server/index.ts",
-    ],
-    stdout: "piped",
-    stderr: "piped",
-  });
+import {
+  assertEquals,
+  assertNotEquals,
+} from "https://deno.land/std@0.104.0/testing/asserts.ts";
 
 const testCmd = (tag: string) =>
   new Deno.Command(Deno.execPath(), {
@@ -29,34 +18,47 @@ const testCmd = (tag: string) =>
   });
 
 const filterUndeterministic = (text: string) =>
-  text.split("\n").map((line) =>
-    line.match(/^duration: /i)
-      ? line.replace(/(duration: )(\d+\.?\d*)/i, "$1xxx.xxx")
-      : line
-  ).join("\n");
+  text
+    .split("\n")
+    .map((line) =>
+      line.match(/^duration: /i)
+        ? line.replace(/(duration: )(\d+\.?\d*)/i, "$1xxx.xxx")
+        : line
+    )
+    .join("\n");
 
-// https://deno.com/manual@v1.33.3/basics/testing#test-steps
-Deno.test("functional test", async (tst) => {
-  const tag = "scenario";
-  await tst.step(tag, async () => {
+const testSuite = [
+  { tag: "assertion-body", err: 1 },
+  { tag: "assertion-header", err: 1 },
+  { tag: "assertion-status", err: 1 },
+  { tag: "continue-on-failure", err: 1 },
+  { tag: "dummy", err: null },
+  { tag: "failures", err: 1 },
+  { tag: "invalid-schema", err: "Invalid scenario provided" },
+  { tag: "matcher-syntax-error", err: "Invalid matcher syntax" },
+  { tag: "scenario", err: null },
+  { tag: "stop-on-failure", err: 1 },
+];
+
+await testSuite.forEach(async ({ tag, err }) => {
+  await Deno.test(tag, async () => {
     const expected = await Deno.readTextFile(
-      `./test/functional/expectations/${tag}.expected`,
+      `./test/functional/expectations/${tag}.expected`
     );
-    const process = mockCmd(3002).spawn();
+    // const process = mockCmd(3002).spawn();
     const command = testCmd(tag);
     const { code, stdout, stderr } = await command.output();
 
-    const err = new TextDecoder().decode(stderr);
+    const error = new TextDecoder().decode(stderr);
     const actual = new TextDecoder().decode(stdout);
-    assertEquals(code, 0);
+    if (err) {
+      assertNotEquals(code, 0);
+    } else {
+      assertEquals(code, 0);
+    }
     assertEquals(
       filterUndeterministic(actual),
-      filterUndeterministic(expected),
+      filterUndeterministic(expected)
     );
-
-    await Promise.all([
-      process.stdout.cancel(),
-      process.stderr.cancel()]);
-    process.kill();
   });
 });

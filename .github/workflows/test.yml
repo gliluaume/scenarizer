@@ -21,4 +21,6 @@ jobs:
       #   run: deno lint
       - name: Run tests
         run: deno test
+      - name: Functional tests
+        run: deno task test:functional
   #     - run: deno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts dummy.yml
