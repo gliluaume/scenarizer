@@ -1,0 +1,153 @@
+# Scenario for action workflow like a behavioral test
+
+init:
+  actions:
+    - updateContext:
+        settings:
+          continue: false
+        # login: api
+        # password: api
+        baseUrl: http://localhost:3000
+        # persistentHeaders:
+        #   user-agent: test/0.4
+# requestHook:
+#   status: 401
+#   replay: true
+#   action:
+#     request:
+#       endpoint: /api/authentication/refresh
+#       method: POST
+#       body:
+#         login: §context.login
+#         password: §context.password
+
+steps:
+  # login: # this is the step name
+  #   label: first login
+  #   actions:
+  #     - request:
+  #         endpoint: /api/authentication/login
+  #         method: POST
+  #         body:
+  #           login: §context.login
+  #           password: §context.password
+  #         expect:
+  #           status: 200
+  #     - updateContext:
+  #         persistentHeaders:
+  #           authorization: Bearer §previous.result.body.token
+  #           deviceId: §previous.result.body.deviceId
+  deep-health:
+    label: health check
+    actions:
+      - request:
+          endpoint: /health
+          method: GET
+          expect:
+            status: 200
+            headers:
+              x-server: dummy/1.0.5
+  get-cars:
+    label: GET all cars
+    actions:
+      - request:
+          endpoint: /cars
+          query:
+            brand: simca
+          method: GET
+          expect:
+            status: 200
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "additional": "foo"
+                }
+              ]
+  post-cars:
+    label: POST cars
+    actions:
+      - request:
+          method: POST
+          endpoint: /cars
+          body: |
+              [
+                {
+                  "brand": "Simca"
+                }
+              ]
+          expect:
+            settings:
+              bodyMatch: false
+            status: 204
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
+              ]
+  put-cars:
+    label: PUT cars
+    actions:
+      - request:
+          method: PUT
+          endpoint: /cars
+          body: |
+              [
+                {
+                  "brand": "Simca",
+                }
+              ]
+          expect:
+            settings:
+              bodyMatch: false # TODO there seems to be a bug here with body match
+            status: 200
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
+              ]
+  patch-cars:
+    label: PATCH cars
+    actions:
+      - request:
+          method: PATCH
+          endpoint: /cars
+          body: |
+              [
+                {
+                  "brand": "Simca",
+                }
+              ]
+          expect:
+            status: 200
+            body: |
+              [
+                {
+                  "id": "61469a43-994f-40ab-a81f-e02ee40adf92",
+                  "brand": "Simca",
+                  "model": "Simca 1000",
+                  "creationDate": "1961-04-13T15:16:53",
+                  "weight": 720,
+                  "maxSpeed": 120
+                }
+              ]
+  delete-cars:
+    label: DELETE cars
+    actions:
+      - request:
+          method: DELETE
+          endpoint: /cars
+          expect:
+            status: 200

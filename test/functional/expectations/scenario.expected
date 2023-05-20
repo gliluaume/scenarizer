@@ -14,4 +14,4 @@ updateContext: baseUrl
 [44mRunning[0m [1mdelete-cars[0m: DELETE cars
 ✔️ request [31mDELETE[0m /cars
 [1mTest [32msuccess![0m
-duration: 265.859535 ms
+duration: 276.575551 ms

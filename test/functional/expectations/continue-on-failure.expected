@@ -1,0 +1,9 @@
+input file is valid
+Run initialization
+updateContext: settings,baseUrl
+[44mRunning[0m [1mhealth[0m: health
+❌ request [36mGET[0m /health
+error sending request for url (http://localhost:3000/health): error trying to connect: tcp connect error: Connection refused (os error 111)
+❌ request [36mGET[0m /health
+error sending request for url (http://localhost:3000/health): error trying to connect: tcp connect error: Connection refused (os error 111)
+[1mTest suite [31mfailed.[0m

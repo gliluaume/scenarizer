@@ -1,0 +1,17 @@
+init:
+  actions:
+    - updateContext:
+        settings:
+          continue: true
+        baseUrl: http://localhost:3000
+steps:
+  deep-health:
+    label: health check
+    actions:
+      - request:
+          endpoint: /health
+          method: GET
+          expect:
+            status: 200
+            headers:
+              x-server: dummy/1.0.5

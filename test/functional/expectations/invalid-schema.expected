@@ -1,0 +1,25 @@
+[1m.steps['health'].actions[0].request.expect.status[0m: should be <= 599, given: [31m600[0m
+[1m.steps['health'].actions[0][0m: should have required property 'updateContext', given: 
+request:
+  endpoint: /
+  method: GET
+  expect:
+    status: 600
+    body: |
+      {
+        "age": "§match.number 1",
+        "height": "§match.number"
+      }
+
+[1m.steps['health'].actions[0][0m: should match some schema in anyOf, given: 
+request:
+  endpoint: /
+  method: GET
+  expect:
+    status: 600
+    body: |
+      {
+        "age": "§match.number 1",
+        "height": "§match.number"
+      }
+

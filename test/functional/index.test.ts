@@ -35,13 +35,14 @@ const filterUndeterministic = (text: string) =>
       : line
   ).join("\n");
 
+// https://deno.com/manual@v1.33.3/basics/testing#test-steps
 Deno.test("functional test", async (tst) => {
   const tag = "scenario";
   await tst.step(tag, async () => {
     const expected = await Deno.readTextFile(
       `./test/functional/expectations/${tag}.expected`,
     );
-    const process = await mockCmd(3002).spawn();
+    const process = mockCmd(3002).spawn();
     const command = testCmd(tag);
     const { code, stdout, stderr } = await command.output();
 
@@ -53,7 +54,9 @@ Deno.test("functional test", async (tst) => {
       filterUndeterministic(expected),
     );
 
-    process.stdout.cancel();
-    process.stderr.cancel();
+    await Promise.all([
+      process.stdout.cancel(),
+      process.stderr.cancel()]);
+    process.kill();
   });
 });
