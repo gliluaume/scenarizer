@@ -23,6 +23,7 @@ This tool targets APIs that take and return JSON content.
 ## Alternatives
 * [artillery](https://www.artillery.io): multi-protocol, load-testing oriented
 * [postman / newman](https://blog.postman.com/meet-newman-a-command-line-companion-for-postman/)
+* [jmeter](https://jmeter.apache.org/): complete multi protocol, runs on JVM
 
 # Get started
 
@@ -36,7 +37,7 @@ $ deno task start .\scenario.yml
 
 A scenario is a set of elements:
 - init: a special action run at startup
-- requestHooks: list of actions triggered by a response (code, body content. For example: 401, with error body.code: TOKEN_NEEDS_REFRESH), allows replay of the previous action which result's has triggered the hook.
+- requestHooks: list of actions triggered by a response (status code only. For example: 401), allows replay of the previous action which result's has triggered the hook.
 - steps: list of steps. A step is a list of actions
 - context: which is basically any object like `{ [key: string]: object }`. This context can be seen as the state of a HTTP client. It can be accessed with macros. It also provides an history of processed requests results.
 
@@ -137,7 +138,7 @@ Explanation:
  - closeDate
  - date: any date
  - number [min] [max]: a number, a number >= min, a number <= max
- - regexp [pattern]: a string, a string matchin a pattern
+ - regexp \<pattern\>: a string, a string matchin a pattern
  - uuid: any uuid, uuid/V4, guid, etc. could be a shorthand of a specific case of the previous one
 
 Example:
@@ -158,6 +159,47 @@ steps:
 ```
 
 This would match a response body with `age` property as number greater than 1.
+
+#### closeDate
+**usage**: closeDate [maxAge]
+
+**description**: check a given value is recent
+
+**parameters**
+* **maxAge**: a strictly positive number describing the max age of the expected date in milliseconds. Default value is 500.
+
+**example:**
+* `"2018-09-13T15:16:00.156Z"` will match `"date": "§match.closeDate 100"` from `"2018-09-13T15:16:00.056Z"` to `"2018-09-13T15:16:00.156Z"`
+* `"date": "§match.closeDate"` is equivalent to `"date": "§match.closeDate 500"`
+
+#### date
+**usage:** date
+
+**description:** check given value is a valid date (string as JSON format)
+
+**example:**
+* `"date": "§match.date"`
+
+#### number
+**usage**: number [min] [max]
+
+**description**: check a given value is a number
+
+**example:**
+* `"age": "§match.number"`: age is a valid number
+* `"age": "§match.number 5"`: age is greater than or equal to 5
+* `"age": "§match.number 5 10"`: age is in range `[5, 10]`
+
+#### regexp
+**usage**: regexp pattern
+
+**description**: check a given value is a number
+
+**argument**
+* **pattern**: a regular expression pattern
+
+**example:**
+* `"name": "§match.regexp ^[a-z]+$"`: name is a string of a least one character in [a-z]
 
 ### Environment variables
 Environment variables must follow bash syntax with enclosing curly braces like `${VAR}`.

@@ -1,0 +1,17 @@
+input file is valid
+Run initialization
+updateContext: baseUrl
+[44mRunning[0m [1mdeep-health[0m: health check
+✔️ request [36mGET[0m /health
+[44mRunning[0m [1mget-cars[0m: GET all cars
+✔️ request [36mGET[0m /cars
+[44mRunning[0m [1mpost-cars[0m: POST cars
+✔️ request [32mPOST[0m /cars
+[44mRunning[0m [1mput-cars[0m: PUT cars
+✔️ request [33mPUT[0m /cars
+[44mRunning[0m [1mpatch-cars[0m: PATCH cars
+✔️ request [1;32mPATCH[0m /cars
+[44mRunning[0m [1mdelete-cars[0m: DELETE cars
+✔️ request [31mDELETE[0m /cars
+[1mTest [32msuccess![0m
+duration: 276.575551 ms

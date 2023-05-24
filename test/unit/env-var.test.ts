@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
-import { applyEnv } from "../src/env-var.ts";
+import { applyEnv } from "../../src/env-var.ts";
 
 Deno.test("apply env vars simple", () => {
   const yml = `

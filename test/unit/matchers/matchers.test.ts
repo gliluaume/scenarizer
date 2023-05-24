@@ -1,6 +1,6 @@
 import { stub } from "https://deno.land/std@0.165.0/testing/mock.ts";
-import { Matchers } from "../../src/matchers.ts";
-import { tools } from "../../src/tools.ts";
+import { Matchers } from "../../../src/matchers.ts";
+import { tools } from "../../../src/tools.ts";
 import { assertEquals } from "https://deno.land/std@0.165.0/testing/asserts.ts";
 
 stub(tools, "now", () => new Date("2018-09-13T15:16:00.256Z"));

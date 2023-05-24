@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
-import { checkYaml } from "../src/schema-validator.ts";
+import { checkYaml } from "../../src/schema-validator.ts";
 
 Deno.test("valid full", async () => {
   const yml = `

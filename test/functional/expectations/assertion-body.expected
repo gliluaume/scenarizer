@@ -1,0 +1,7 @@
+input file is valid
+Run initialization
+updateContext: settings,baseUrl
+[44mRunning[0m [1mget-cars[0m: GET all cars
+❌ request [36mGET[0m /cars
+error sending request for url (http://localhost:3000/cars?brand=simca): error trying to connect: tcp connect error: Connection refused (os error 111)
+[1mTest suite [31mfailed.[0m

@@ -1,0 +1,9 @@
+[1msteps.health.action.request.expect.body[0m:
+  [1m1[0m: Number params: Bad param types, number expected, given: [31mfoo[0m
+  [1m3[0m: unknown matcher "§match.regex"
+    1: {
+    [31m2:   "age": "§match.number 1 foo",[0m
+    3:   "height": "§match.number",
+    [31m4:   "zip": "§match.regex"[0m
+    5: }
+…

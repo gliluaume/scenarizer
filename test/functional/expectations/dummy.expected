@@ -1,0 +1,7 @@
+input file is valid
+Run initialization
+updateContext: baseUrl
+[44mRunning[0m [1mhealth[0m: health
+✔️ request [36mGET[0m /
+[1mTest [32msuccess![0m
+duration: 408.295376 ms

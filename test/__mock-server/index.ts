@@ -1,9 +1,14 @@
 // deno run --allow-read --allow-env --allow-net index.ts
 
-import express, { Request, Response } from "npm:express@4.18.2";
+import express, { NextFunction, Request, Response } from "npm:express@4.18.2";
 
 const app = express();
 const port = Number(Deno.env.get("PORT")) || 3002;
+
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  console.log(req.method, req.originalUrl);
+  next();
+});
 
 app.get("/health", (_req: Request, res: Response) => {
   res.set("x-server", "dummy/1.0.0");

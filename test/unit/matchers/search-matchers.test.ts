@@ -1,4 +1,4 @@
-import { searchForMatchers, subSearch } from "../../src/matchers.ts";
+import { searchForMatchers, subSearch } from "../../../src/matchers.ts";
 import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 
 Deno.test("subSearch no param", () => {

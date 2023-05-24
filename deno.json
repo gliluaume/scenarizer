@@ -2,11 +2,14 @@
   "tasks": {
     "start": "deno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts",
     "fmt": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs",
-    "fmt:check": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs,utils/icon.js --check",
-    "test": "deno test --allow-all",
+    "fmt:check": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs --check",
+    "test:unit": "deno test --allow-all test/unit",
+    "test:functional": "bash launch-functional-test.sh",
     "docs": "jsonschema2md --input src/ --schema-extension json --header false --out docs -n",
     "docs:serve": "docsify serve docs",
     "mock-server": "deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts",
-    "gen-icon": "deno run --allow-write utils/icon.js"
+    "gen-icon": "deno run --allow-write utils/icon.js",
+    "cov:win": "deno test --coverage=.coverage ; deno coverage --include=src .coverage ; deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov ; reportgenerator -reports:.coverage/coverage.lcov -targetdir:.coveragereport ; rm -f .coverage/.json",
+    "cov:linux": "deno test --coverage=.coverage && deno coverage --include=src .coverage && deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov && genhtml -o .coverage .coverage/coverage.lcov && rm -f .coverage/.json"
   }
 }
