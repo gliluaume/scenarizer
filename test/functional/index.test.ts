@@ -45,7 +45,6 @@ await testSuite.forEach(async ({ tag, err }) => {
     const expected = await Deno.readTextFile(
       `./test/functional/expectations/${tag}.expected`,
     );
-    // const process = mockCmd(3002).spawn();
     const command = testCmd(tag);
     const { code, stdout, stderr } = await command.output();
 

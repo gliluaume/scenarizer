@@ -44,8 +44,8 @@ update doc
 $ deno task start docs/samples/assertion-body.yml | ansi2html > docs/output-samples/assertion-body.html
 ```
 
-## Future modifications
+## TODO
 - [ ] improve test coverage
-- [ ] add functional test
+- [x] add functional test
 - [ ] add multi-file support
 - [ ] score calculation based on swagger description (check which verb / path is covered)
