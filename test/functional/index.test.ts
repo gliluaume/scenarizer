@@ -43,7 +43,7 @@ const testSuite = [
 await testSuite.forEach(async ({ tag, err }) => {
   await Deno.test(tag, async () => {
     const expected = await Deno.readTextFile(
-      `./test/functional/expectations/${tag}.expected`
+      `./test/functional/expectations/${tag}.expected`,
     );
     // const process = mockCmd(3002).spawn();
     const command = testCmd(tag);
@@ -58,7 +58,7 @@ await testSuite.forEach(async ({ tag, err }) => {
     }
     assertEquals(
       filterUndeterministic(actual),
-      filterUndeterministic(expected)
+      filterUndeterministic(expected),
     );
   });
 });
