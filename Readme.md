@@ -2,10 +2,8 @@
 	<img src="docs/icon.ico" width="200" height="200">
 	<h1>Scenarizer</h1>
 	<p>
-		<b>Web API testing tool</b>
+		<b>Testing HTTP APIs working with JSON</b>
 	</p>
-	<br>
-	<br>
 	<br>
 </div>
 
