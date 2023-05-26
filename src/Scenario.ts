@@ -2,6 +2,9 @@ import { Action } from "./actions.ts";
 import { Context, HistoryEntry } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
 import { C } from "./formatting.ts";
+import pick from "https://deno.land/x/lodash@4.17.15-es/pick.js";
+import uniq from "https://deno.land/x/lodash@4.17.15-es/uniq.js";
+import uniqBy from "https://deno.land/x/lodash@4.17.15-es/uniqBy.js";
 
 export class Scenario {
   public init: Action[];
@@ -60,6 +63,19 @@ export class Scenario {
         return false;
       }
     }
+
+    console.log("full context")
+    console.log(JSON.stringify(this.covered))
+  }
+
+  private get covered() {
+    const cov = this.context.history.map((entry)=>{
+      const obj = pick(entry?.action?.payload, 'method', 'endpoint')
+      obj.key = obj.method ? `${obj.method}§${obj.endpoint}` : null;
+      return obj;
+    }).filter(e => !!e);
+
+    return uniqBy(cov, (entry: { key: string }) => entry.key);
   }
 
   public get failed() {
