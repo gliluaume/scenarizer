@@ -57,3 +57,23 @@ Deno.test("searchForMacros siblings", () => {
     },
   ]);
 });
+
+Deno.test("searchForMacros multi occurences", () => {
+  const input: KvList = {
+    persistentHeaders: {
+      authentication: "Bearer §previous.result.token §previous.result.deviceId",
+    },
+  };
+  assertEquals(searchForMacros(input), [
+    {
+      macroName: "§previous",
+      path: "result.token",
+      contextPath: ["persistentHeaders", "authentication"],
+    },
+    {
+      macroName: "§previous",
+      path: "result.deviceId",
+      contextPath: ["persistentHeaders", "authentication"],
+    },
+  ]);
+});

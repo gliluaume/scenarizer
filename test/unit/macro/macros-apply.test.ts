@@ -88,3 +88,40 @@ Deno.test("applyMacros §context", () => {
     });
   });
 });
+
+[
+  {
+    label: "multi value",
+    ctx: { prefix: "/v1", id: 1234 },
+    data: {
+      endpoint: "§context.prefix/car/§context.id",
+    },
+    expected: {
+      endpoint: "/v1/car/1234",
+    },
+  },
+  {
+    label: "repeated value",
+    ctx: { id: 1234 },
+    data: {
+      endpoint: "/§context.id/car/§context.id",
+    },
+    expected: {
+      endpoint: "/1234/car/1234",
+    },
+  },
+].forEach(({ label, ctx, data, expected }) => {
+  Deno.test(`applyMacros §context ${label}`, () => {
+    const context = Object.assign(new Context(), {
+      history: [],
+    }, ctx);
+    const contextCpy = cloneDeep(context);
+    const dataCpy = cloneDeep(data);
+
+    const actual = applyMacros(data, context);
+
+    assertEquals(context, contextCpy);
+    assertEquals(data, dataCpy);
+    assertEquals(actual, expected);
+  });
+});

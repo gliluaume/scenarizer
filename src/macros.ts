@@ -65,12 +65,16 @@ export function searchForMacros(
   } else if (typeof data === "string") {
     const macroDesc = [...macros.keys()]
       .map((macroName) => {
-        const path = subSearch(macroName, data);
-        return path ? { macroName, path, contextPath } : false;
+        const paths = subSearch(macroName, data);
+        return paths
+          ? paths.map((path) => ({ macroName, path, contextPath }))
+          : false;
       })
-      .find((isMacroDesc) => isMacroDesc) || false;
-    if (macroDesc) {
-      macroDescriptors.push(macroDesc);
+      .filter((isMacrosDesc) => !!isMacrosDesc)
+      .flat() as unknown as macroDescriptor[];
+
+    if (macroDesc.length > 0) {
+      macroDescriptors.push(...macroDesc);
     }
     return macroDescriptors;
   } else {
@@ -78,8 +82,18 @@ export function searchForMacros(
   }
 }
 
-function subSearch(macroName: string, candidate: string): string | false {
+function subSearch(macroName: string, candidate: string): string[] | false {
   const regexp = new RegExp(`${macroName}.(?<path>(\\w+\\.?)+)\.*`);
-  const match = regexp.exec(candidate);
-  return match?.groups?.path || false;
+  const sub = new RegExp(`${macroName}.(?<path>(\\w+\\.?)+)`);
+  let test = candidate;
+  let result: string[] | false = false;
+  let match;
+  // deno-lint-ignore no-cond-assign
+  while ((match = regexp.exec(test))) {
+    result = result || [];
+    result.push(match?.groups?.path as string);
+    test = test.replace(sub, "");
+  }
+
+  return result;
 }
