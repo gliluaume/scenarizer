@@ -1,6 +1,6 @@
 # Overview
 
-This is a tool to sequentially send request and make assertions on responses.
+A tool to sequentially send requests and make assertions on responses.
 
 Manifesto:
 - write functional test scenarios using a clean configuration file and reduce coding to the minimum
@@ -8,15 +8,14 @@ Manifesto:
 - assertions are easy to write with the intention to be as complete as possible (full document validation) but letting the possibility to the user to compare subsets or template response (matchers and body match).
 - should be as simple as possible
 - CLI available (easy to run in a CI)
-
-This tool targets APIs that take and return JSON content.
+- target HTTP APIs that send and receive JSON content
 
 ## Features
-- compare actual and expected on status code, headers and body
+- compare actual and expected on status code, headers and body giving a clean diff representation
 - hooks on responses: launch actions on response status, optionally re-run previous request
-- store a state of the client (context)
+- store a state (context)
 - store actions and result history
-- handles environment variables as "${ENV_NAME}" every where in yaml file.
+- handle environment variables as "${ENV_NAME}" every where in the YAML file.
 - macros to access data in context (history and current state)
 - matcher to provide template matching on responses
 
