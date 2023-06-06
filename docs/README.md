@@ -18,6 +18,7 @@ Manifesto:
 - handle environment variables as "${ENV_NAME}" every where in the YAML file.
 - macros to access data in context (history and current state)
 - matcher to provide template matching on responses
+- score calculation
 
 ## Alternatives
 * [artillery](https://www.artillery.io): multi-protocol, load-testing oriented
@@ -242,6 +243,51 @@ Takes:
 #### Update context Action
 
 Just sets values in the context.
+
+### Score calculation
+
+Enable score calculation from init element
+```yml
+init:
+  score:
+    swagger: http://localhost:3002/swagger
+    level: response # verb|path|response
+    threshold: 90
+```
+
+Hierarchy
+```
+.
+└── path
+│   └── verb
+        └── response
+```
+
+example: response code level
+```
+/pets           ⚠️ 50%
+├── get         ⚠️ 50%
+│   ├── 200     ✔️
+│   └── 400     ❌
+└── post        ✔️
+    └── 201     ✔️
+/cars            ⚠️ 50%
+└── post         ⚠️ 50%
+    └── 200     ✔️
+```
+
+example: verb level
+```
+/pet            ✔️
+├── get         ✔️
+└── post        ✔️
+```
+
+example: path level
+```
+/pet            ✔️
+/cars           ✔️
+```
 
 # Example
 

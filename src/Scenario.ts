@@ -3,14 +3,15 @@ import { Context, HistoryEntry } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
 import { C } from "./formatting.ts";
 import pick from "https://deno.land/x/lodash@4.17.15-es/pick.js";
-import uniq from "https://deno.land/x/lodash@4.17.15-es/uniq.js";
 import uniqBy from "https://deno.land/x/lodash@4.17.15-es/uniqBy.js";
+import { tools  } from "./tools.ts";
 
 export class Scenario {
-  public init: Action[];
+  public init: Init;
   public requestHook?: RequestHook;
   public steps: Step[];
   private context: Context;
+  private swaggerDoc: any;
 
   public get duration() {
     return performance.now();
@@ -42,38 +43,79 @@ export class Scenario {
 
   constructor(data: any) {
     this.context = new Context();
-    this.init = data.init.actions.map((action: Object) => new Action(action));
+    this.init = {
+      score: Object?.assign(new Score(), data?.init?.score ),
+      actions: data.init.actions.map((action: Object) => new Action(action)),
+    };
+
     this.requestHook = data.requestHook
       ? new RequestHook(data.requestHook)
       : undefined;
     this.steps = Object.keys(data.steps).map(
-      (name: string) => new Step(name, data.steps[name]),
+      (name: string) => new Step(name, data.steps[name])
     );
   }
 
   public async run() {
     console.log("Run initialization");
-    await this.runActions(this.init);
+    await this.initialise();
     for (const step of this.steps) {
       console.log(
-        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`,
+        `${C.bgBlue}Running${C.reset} ${C.bold}${step.name}${C.reset}: ${step.label}`
       );
       const result = await this.runActions(step.actions);
       if (result === false && !this.context.settings.continue) {
         return false;
       }
     }
-
-    console.log("full context")
-    console.log(JSON.stringify(this.covered))
   }
 
-  private get covered() {
-    const cov = this.context.history.map((entry)=>{
-      const obj = pick(entry?.action?.payload, 'method', 'endpoint')
-      obj.key = obj.method ? `${obj.method}§${obj.endpoint}` : null;
-      return obj;
-    }).filter(e => !!e);
+  private async initialise() {
+    if (this.init.score.asked) {
+      const response = await tools.rantanplan(this.init.score?.swagger);
+      const isJson = response.headers.get("content-type")?.includes("application/json")
+      console.log('response',response.status, isJson)
+      if (response.status !== 200 || !isJson) {
+        throw new Error("Invalid response for swagger");
+      }
+      this.swaggerDoc = await response.json();
+    }
+    await this.runActions(this.init.actions);
+  }
+
+  // TODO refactor
+  public get report(): Report {
+    const eqlVerbs = (a: string, b: string) => a.toLocaleUpperCase() === b.toLocaleUpperCase()
+    const cover = this.covered();
+    const entries = [] as IScoreEntry[];
+    Object.keys(this.swaggerDoc.paths).forEach((path) => {
+      Object.keys(this.swaggerDoc.paths[path]).forEach((verb) => {
+        Object.keys(this.swaggerDoc.paths[path][verb].responses).forEach((response) => {
+          entries.push({
+            path, verb: verb.toLocaleLowerCase(), response: Number(response),
+            isCovered: cover.some((item) => item.endpoint === path &&  eqlVerbs(item.method, verb) && item?.expect?.status === Number(response)),
+          })
+        })
+      })
+    });
+
+    const sorted = entries.sort((a, b) => {
+      if (a.path === b.path && a.verb === b.verb) return a.response - b.response;
+      if (a.path === b.path) return a.verb < b.verb ? -1 : (a.verb > b.verb ? 1 : 0);
+      return a.path < b.path ? -1 : (a.path > b.path ? 1 : 0);
+    });
+
+    return Object.assign(new Report, { score: {entries: sorted}});
+  }
+
+  private covered() {
+    const cov = this.context.history
+      .map((entry) => {
+        const obj = pick(entry?.action?.payload, "method", "endpoint", "expect.status");
+        obj.key = obj.method ? `${obj.method}§${obj.endpoint}` : null;
+        return obj;
+      })
+      .filter((e) => !!e);
 
     return uniqBy(cov, (entry: { key: string }) => entry.key);
   }
@@ -113,6 +155,30 @@ export class Scenario {
       this.context = response.context;
     }
     return response.result;
+  }
+}
+
+export class Init {
+  public actions: Action[];
+  public score: Score;
+  constructor() {
+    this.actions = [];
+    this.score = new Score();
+  }
+}
+
+export class Score {
+  public swagger: string;
+  public level: "response" | "path" | "verb";
+  public threshold: number;
+  public get asked() {
+    return !!this.swagger;
+  }
+
+  constructor() {
+    this.swagger = "";
+    this.level = "response";
+    this.threshold = 100;
   }
 }
 
@@ -158,3 +224,76 @@ export class RequestHook {
     this.replay = !!data?.replay;
   }
 }
+export class Report {
+  score?: {
+    entries: IScoreEntry[]
+  }
+
+  public get asTree() {
+    return this.score?.entries.reduce((tree: any, entry:IScoreEntry) => {
+      if(tree[entry.path]) {
+        if (tree[entry.path][entry.verb]) {
+          tree[entry.path][entry.verb][entry.response] =entry.isCovered
+        } else {
+          tree[entry.path][entry.verb] = {[entry.response]: entry.isCovered}
+        }
+      } else {
+        tree[entry.path]= {[entry.verb]: {[entry.response]: entry.isCovered}}
+      }
+      return tree
+
+    }, {});
+  }
+
+  public static treeTostring(obj: any, indent = " ") {
+    let output = "";
+    const headers = {
+      last: "└──",
+      some: "├──",
+      branch: "│   ",
+      blank: "    ",
+    };
+    const icons = {
+      ok: "✔️",
+      ko: "❌",
+    };
+
+    const keys = Object.keys(obj).sort();
+
+    keys.forEach((key, index) => {
+      output += key + "\n";
+      const methodKeys = Object.keys(obj[key]).sort();
+      methodKeys.forEach((methodKey, methodIndex) => {
+        const methodHeader =
+          methodKeys.length === methodIndex + 1 ? headers.last : headers.some;
+        output += `${methodHeader} ${methodKey}\n`;
+        const responseKeys = Object.keys(obj[key][methodKey]).sort();
+        responseKeys.forEach((responseKey, responseIndex) => {
+          const preHeader =
+            methodKeys.length === methodIndex + 1
+              ? headers.blank
+              : headers.branch;
+
+          const responseHeader =
+            responseKeys.length === responseIndex + 1
+              ? preHeader + headers.last
+              : preHeader + headers.some;
+          const result = obj[key][methodKey][responseKey] ? icons.ok : icons.ko;
+          output += `${responseHeader} ${responseKey}\t${result}\n`;
+        });
+      });
+    });
+    return output;
+  }
+}
+
+export type Verb =  "HEAD"|"OPTIONS"|"GET"|"POST"|"PUT"|"PATCH"|"DELETE";
+export type StatusCode = number;
+
+export interface IScoreEntry {
+  isCovered: boolean;
+  path : string;
+  verb: string;
+  response: number;
+}
+

@@ -2,4 +2,11 @@ function now() {
   return new Date();
 }
 
-export const tools = { now };
+function rantanplan(
+  input: string | URL | Request,
+  init?: RequestInit | undefined
+) {
+  return fetch(input, init);
+}
+
+export const tools = { now, rantanplan };

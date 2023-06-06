@@ -11,6 +11,7 @@ import { Context } from "./Context.ts";
 import { applyMacros, KvList } from "./macros.ts";
 import { C, methodsColors } from "./formatting.ts";
 import { applyMatchers, searchForMatchers } from "./matchers.ts";
+import { tools } from "./tools.ts";
 
 export class Action {
   public handler: ActionFnWithContext;
@@ -91,7 +92,7 @@ async function _request(
 
   const fullUrl = buildUrl(context.baseUrl!, endpoint, config.query);
 
-  const response = await fetch(fullUrl, init);
+  const response = await tools.rantanplan(fullUrl, init);
 
   // Check status
   const wrappedStatus = config?.expect?.status || 200;
