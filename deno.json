@@ -4,7 +4,7 @@
     "fmt": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs",
     "fmt:check": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs --check",
     "test:unit": "deno test --allow-all test/unit",
-    "test:functional": "bash launch-functional-test.sh",
+    "test:full": "bash launch-all-tests.sh",
     "docs": "jsonschema2md --input src/ --schema-extension json --header false --out docs -n",
     "docs:serve": "docsify serve docs",
     "mock-server": "deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts",

@@ -25,7 +25,12 @@ deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts &
 pid=$!
 
 echo -e "🧪 lauching test suite\x1b[0m"
-deno test --allow-all test/functional
+# deno test --allow-all --coverage=.coverage test/functional
+deno test --allow-all --coverage=.coverage test/ && \
+deno coverage --include=src .coverage &&\
+deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov &&\
+genhtml -o .coverage .coverage/coverage.lcov &&\
+rm -f .coverage/.json
 ret=$?
 
 echo "🚀 stopping mock server"
