@@ -13,6 +13,14 @@
       "type": "object",
       "required": ["actions"],
       "properties": {
+        "score": {
+          "type": "object",
+          "properties": {
+            "swagger": {
+              "type": "string"
+            }
+          }
+        },
         "actions": {
           "type": "array",
           "items": {

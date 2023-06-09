@@ -94,6 +94,6 @@ Deno.test("scenario", async () => {
 
   assertEquals(scenario.report.asTree, {
     "/cars": { post: { "201": false } },
-    "/pets": { get: { "200": true, "400": false }, post: { "201": false } }
+    "/pets": { get: { "200": true, "400": false }, post: { "201": false } },
   });
 });

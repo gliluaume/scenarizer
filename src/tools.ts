@@ -4,7 +4,7 @@ function now() {
 
 function rantanplan(
   input: string | URL | Request,
-  init?: RequestInit | undefined
+  init?: RequestInit | undefined,
 ) {
   return fetch(input, init);
 }

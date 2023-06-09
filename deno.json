@@ -1,8 +1,8 @@
 {
   "tasks": {
     "start": "deno run --allow-hrtime --allow-env --allow-read --allow-net --unsafely-ignore-certificate-errors src/index.ts",
-    "fmt": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs",
-    "fmt:check": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs --check",
+    "fmt": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs,.coverage",
+    "fmt:check": "deno fmt --ignore=CHANGELOG.md,Readme.md,docs,.coverage --check",
     "test:unit": "deno test --allow-all test/unit",
     "test:full": "bash launch-all-tests.sh",
     "docs": "jsonschema2md --input src/ --schema-extension json --header false --out docs -n",

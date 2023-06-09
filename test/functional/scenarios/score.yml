@@ -1,0 +1,27 @@
+init:
+  score:
+    swagger: http://localhost:3002/json-doc
+  actions:
+    - updateContext:
+        settings:
+          continue: true
+        baseUrl: http://localhost:3002
+steps:
+  pet-delete:
+    label: delete pet
+    actions:
+      - request:
+          endpoint: /pet
+          method: DELETE
+          expect:
+            status: 404
+            headers:
+              x-server: fifou
+  pet-put:
+    label: put pet
+    actions:
+      - request:
+          endpoint: /pet
+          method: PUT
+          expect:
+            status: 404

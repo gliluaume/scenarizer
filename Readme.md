@@ -42,6 +42,9 @@ update doc
 $ deno task start docs/samples/assertion-body.yml | ansi2html > docs/output-samples/assertion-body.html
 ```
 
+## Add new cases in doc
+Use ansi2html
+
 ## Prerequisites
 To run coverage task on linux (`deno task cov:linux`), genhtml is required (see lcov)
 
