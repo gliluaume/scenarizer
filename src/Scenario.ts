@@ -5,6 +5,7 @@ import { C } from "./formatting.ts";
 import pick from "https://deno.land/x/lodash@4.17.15-es/pick.js";
 import uniqBy from "https://deno.land/x/lodash@4.17.15-es/uniqBy.js";
 import { tools } from "./tools.ts";
+import cloneDeep from "https://deno.land/x/lodash@4.17.15-es/cloneDeep.js";
 
 export class Scenario {
   public init: Init;
@@ -88,7 +89,11 @@ export class Scenario {
   }
 
   // TODO refactor
+  private _report?: Report;
+
   public get report(): Report {
+    if (!this.init.score.asked) return new Report();
+    if (this._report) return this._report;
     const eqlVerbs = (a: string, b: string) =>
       a.toLocaleUpperCase() === b.toLocaleUpperCase();
     const cover = this.covered();
@@ -124,7 +129,8 @@ export class Scenario {
       return a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
     });
 
-    return Object.assign(new Report(), { score: { entries: sorted } });
+    this._report = Object.assign(new Report(), { score: { entries: sorted } });
+    return this._report;
   }
 
   private covered() {
@@ -136,8 +142,8 @@ export class Scenario {
           "endpoint",
           "expect.status",
         );
-        obj.result = !!entry.result,
-          obj.key = obj.method ? `${obj.method}§${obj.endpoint}` : null;
+        (obj.result = !!entry.result),
+          (obj.key = obj.method ? `${obj.method}§${obj.endpoint}` : null);
         return obj;
       })
       .filter((e) => !!e);
@@ -146,7 +152,10 @@ export class Scenario {
   }
 
   public get failed() {
-    return this.context.history.some((entry) => !entry.result);
+    return this.context.history.some((entry) => !entry.result) ||
+      this.init.score.asked &&
+        this._report?.evaluate()[this.init.score.level] <
+          this.init.score.threshold;
   }
 
   private async runActions(actions: Action[]) {
@@ -194,16 +203,16 @@ export class Init {
 
 export class Score {
   public swagger: string;
-  // public level: "response" | "path" | "verb";
-  // public threshold: number;
+  public level: "response" | "path" | "verb";
+  public threshold: number;
   public get asked() {
     return !!this.swagger;
   }
 
   constructor() {
     this.swagger = "";
-    // this.level = "response";
-    // this.threshold = 100;
+    this.level = "response";
+    this.threshold = 100;
   }
 }
 
@@ -249,10 +258,57 @@ export class RequestHook {
     this.replay = !!data?.replay;
   }
 }
+
+export class Rates {
+  path: number;
+  verb: number;
+  response: number;
+
+  constructor() {
+    this.path = -1;
+    this.verb = -1;
+    this.response = -1;
+  }
+}
+
 export class Report {
   score?: {
     entries: IScoreEntry[];
   };
+
+  public evaluate(): any {
+    const floupi = cloneDeep(this.score?.entries)
+      .map((entry: any) => {
+        entry.hashes = {
+          response: `${entry.path}§${entry.verb}§${entry.response}`,
+          verb: `${entry.path}§${entry.verb}`,
+          path: entry.path,
+        };
+        return entry;
+      })
+      .reduce(
+        (stuff: any, entry: any) => {
+          stuff.path[entry.hashes.path] = !!stuff.path[entry.hashes.path] ||
+            entry.isCovered;
+          stuff.verb[entry.hashes.verb] = !!stuff.verb[entry.hashes.verb] ||
+            entry.isCovered;
+          stuff.response[entry.hashes.response] =
+            !!stuff.response[entry.hashes.verb] || entry.isCovered;
+          return stuff;
+        },
+        { path: {}, verb: {}, response: {} },
+      );
+
+    return Object.keys(floupi).reduce((rates: any, key) => {
+      const section = floupi[key];
+      const all = Object.keys(section).length;
+      const covered = Object.keys(section).filter((k) => !!section[k]).length;
+      rates[key] = +Number.parseFloat((100 * covered / all).toString()).toFixed(
+        2,
+      );
+      return rates;
+    }, {});
+  }
 
   public get asTree() {
     return this.score?.entries.reduce((tree: any, entry: IScoreEntry) => {
