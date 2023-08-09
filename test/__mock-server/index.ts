@@ -34,7 +34,7 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-const handle = (statusCode = 200) => (_req: Request, res: Response) => {
+const handleCars = (statusCode = 200) => (_req: Request, res: Response) => {
   res.status(statusCode).send([
     {
       id: "61469a43-994f-40ab-a81f-e02ee40adf92",
@@ -47,8 +47,14 @@ const handle = (statusCode = 200) => (_req: Request, res: Response) => {
   ]);
 };
 
-app.post("/cars", handle(201));
-app.all("/cars", handle());
+app.post("/cars", handleCars(201));
+app.all("/cars", handleCars());
+
+const handlePets = (statusCode = 200) => (_req: Request, res: Response) => {
+  res.status(statusCode).send("ok");
+};
+app.post("/pets", handlePets(201));
+app.all("/pets", handlePets());
 
 app.listen(port, () => {
   console.log(`Listening on ${port} ...`);

@@ -70,7 +70,10 @@ export class Scenario {
       }
     }
     if (this.init.score.asked) {
+      console.log("\nScore\n");
       console.log(this.report.asString);
+      console.log(this.report?.scoreAsString);
+      //      console.log(this._report?.evaluate());
     }
   }
 
@@ -129,7 +132,9 @@ export class Scenario {
       return a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
     });
 
-    this._report = Object.assign(new Report(), { score: { entries: sorted } });
+    this._report = Object.assign(new Report(), {
+      score: { entries: sorted, level: this.init.score.level },
+    });
     return this._report;
   }
 
@@ -272,9 +277,17 @@ export class Rates {
 }
 
 export class Report {
-  score?: {
+  score: {
     entries: IScoreEntry[];
+    level: "response" | "path" | "verb";
   };
+
+  constructor(lvl: "response" | "path" | "verb" = "response") {
+    this.score = {
+      entries: [],
+      level: lvl,
+    };
+  }
 
   public evaluate(): any {
     const floupi = cloneDeep(this.score?.entries)
@@ -328,10 +341,18 @@ export class Report {
   }
 
   public get asString() {
-    return Report.treeTostring(this.asTree);
+    return this.treeTostring(this.asTree);
   }
 
-  public static treeTostring(obj: any, indent = " ") {
+  public get scoreAsString() {
+    const score = this.evaluate();
+    return `path: ${score["path"]}
+verb: ${score["verb"]}
+response: ${score["response"]}
+`;
+  }
+
+  public treeTostring(obj: any, indent = " ") {
     let output = "";
     const headers = {
       last: "└──",
@@ -345,28 +366,50 @@ export class Report {
     };
 
     const keys = Object.keys(obj).sort();
+    const padLength = Math.max(14, ...keys.map((k) => k.length));
+    const addCovIcon = (exist: any, s: string) => {
+      const cov = exist ? icons.ok : icons.ko;
+      return s.padEnd(padLength, " ") + cov + "\n";
+    };
 
     keys.forEach((key, index) => {
-      output += key + "\n";
-      const methodKeys = Object.keys(obj[key]).sort();
-      methodKeys.forEach((methodKey, methodIndex) => {
-        const methodHeader = methodKeys.length === methodIndex + 1
-          ? headers.last
-          : headers.some;
-        output += `${methodHeader} ${methodKey}\n`;
-        const responseKeys = Object.keys(obj[key][methodKey]).sort();
-        responseKeys.forEach((responseKey, responseIndex) => {
-          const preHeader = methodKeys.length === methodIndex + 1
-            ? headers.blank
-            : headers.branch;
+      const pathCov = Object.values(obj[key] as object).reduce((a: any, i) => {
+        a.push(...Object.values(i));
+        return a;
+      }, []).some((a: any) => !!a);
 
-          const responseHeader = responseKeys.length === responseIndex + 1
-            ? preHeader + headers.last
-            : preHeader + headers.some;
-          const result = obj[key][methodKey][responseKey] ? icons.ok : icons.ko;
-          output += `${responseHeader} ${responseKey}\t${result}\n`;
+      output += addCovIcon(pathCov, key);
+      if (["verb", "response"].includes(this.score.level)) {
+        const methodKeys = Object.keys(obj[key]).sort();
+        methodKeys.forEach((methodKey, methodIndex) => {
+          const methodHeader = methodKeys.length === methodIndex + 1
+            ? headers.last
+            : headers.some;
+          const verbCov = Object.values(obj[key][methodKey] as object).some((
+            a: any,
+          ) => !!a);
+          output += addCovIcon(
+            verbCov,
+            `${methodHeader} ${methodKey}`,
+          );
+          if (this.score.level == "response") {
+            const responseKeys = Object.keys(obj[key][methodKey]).sort();
+            responseKeys.forEach((responseKey, responseIndex) => {
+              const preHeader = methodKeys.length === methodIndex + 1
+                ? headers.blank
+                : headers.branch;
+
+              const responseHeader = responseKeys.length === responseIndex + 1
+                ? preHeader + headers.last
+                : preHeader + headers.some;
+              output += addCovIcon(
+                obj[key][methodKey][responseKey],
+                `${responseHeader} ${responseKey}`,
+              );
+            });
+          }
         });
-      });
+      }
     });
     return output;
   }

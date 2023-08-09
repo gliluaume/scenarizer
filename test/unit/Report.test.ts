@@ -6,25 +6,27 @@ const input = {
   "/pets": { get: { "200": true, "400": false }, post: { "201": false } },
 };
 
-const expected = `/cars
-└── post
-    └── 201\t❌
-/pets
-├── get
-│   ├── 200\t✔️
-│   └── 400\t❌
-└── post
-    └── 201\t❌
+const expected = `/cars         ❌
+└── post      ❌
+    └── 201   ❌
+/pets         ✔️
+├── get       ✔️
+│   ├── 200   ✔️
+│   └── 400   ❌
+└── post      ❌
+    └── 201   ❌
 `;
 
 Deno.test("tree", () => {
-  const actual = Report.treeTostring(input);
+  const underTest = new Report();
+  const actual = underTest.treeTostring(input);
   assertEquals(actual, expected);
 });
 
 Deno.test("evaluate rates", () => {
   const underTest = new Report();
   underTest.score = {
+    level: "path",
     entries: [
       { path: "/pets", verb: "get", response: 200, isCovered: true },
       { path: "/pets", verb: "get", response: 404, isCovered: false },

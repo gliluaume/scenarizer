@@ -1,0 +1,26 @@
+input file is valid
+Run initialization
+updateContext: settings,baseUrl
+[44mRunning[0m [1mpets[0m: crud pets
+✔️ request [36mGET[0m /pets
+✔️ request [32mPOST[0m /pets
+✔️ request [1;32mPATCH[0m /pets
+✔️ request [31mDELETE[0m /pets
+
+Score
+
+/cars         ❌
+└── get       ❌
+/pets         ✔️
+├── delete    ✔️
+├── get       ✔️
+├── patch     ✔️
+├── post      ✔️
+└── put       ❌
+
+path: 50
+verb: 66.67
+response: 57.14
+
+[1mTest [32msuccess![0m
+duration: 259.619705 ms

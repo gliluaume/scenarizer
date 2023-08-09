@@ -10,6 +10,7 @@
     "mock-server": "deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts",
     "gen-icon": "deno run --allow-write utils/icon.js",
     "cov:win": "deno test --coverage=.coverage test/unit ; deno coverage --include=src .coverage ; deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov ; reportgenerator -reports:.coverage/coverage.lcov -targetdir:.coveragereport ; rm -f .coverage/.json",
-    "cov:linux": "deno test --coverage=.coverage test/unit && deno coverage --include=src .coverage && deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov && genhtml -o .coverage .coverage/coverage.lcov && rm -f .coverage/.json"
+    "cov:linux": "bash launch-all-tests.sh --coverage",
+    "zzcov:linux": "deno test --coverage=.coverage test/unit && deno coverage --include=src .coverage && deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov && genhtml -o .coverage .coverage/coverage.lcov && rm -f .coverage/.json"
   }
 }

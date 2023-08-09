@@ -87,6 +87,7 @@ const expectedReport = {
         verb: "post",
       },
     ],
+    level: "response",
   },
 };
 

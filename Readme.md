@@ -49,7 +49,7 @@ Use ansi2html
 To run coverage task on linux (`deno task cov:linux`), genhtml is required (see lcov)
 
 ## TODO
-- [ ] improve test coverage
+- [~] improve test coverage
 - [x] add functional test
-- [ ] add multi-file support
-- [ ] score calculation based on swagger description (check which verb / path is covered)
+- [ ] add multi-file support: include file directive
+- [x] score calculation based on swagger description (check which verb / path is covered)

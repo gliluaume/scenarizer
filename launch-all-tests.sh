@@ -19,7 +19,15 @@ CbgBluel="\x1b[46m"
 Cbold="\x1b[1m"
 Creset="\x1b[0m"
 
-echo -e "${CbgWhite}${Cbold} Starting functional test ${Creset}"
+
+
+SECONDS=0
+
+[[ "$1" = "--coverage" ]] && calcCoverage=1 || calcCoverage=0
+
+echo "coverage: $calcCoverage"
+
+echo -e "${CbgWhite}${Cbold} Starting functional test${Creset}"
 echo "🚀 launching mock server"
 deno run --allow-read --allow-env --allow-net test/__mock-server/index.ts &
 pid=$!
@@ -27,13 +35,20 @@ pid=$!
 echo -e "🧪 lauching test suite\x1b[0m"
 # deno test --allow-all --coverage=.coverage test/functional
 deno test --allow-all --coverage=.coverage test/ && \
-deno coverage --include=src .coverage &&\
-deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov &&\
-genhtml -o .coverage .coverage/coverage.lcov &&\
-rm -f .coverage/.json
+
+if [[ $calcCoverage -eq 1 ]]; then
+    echo "calculating coverage..."
+    deno coverage --include=src .coverage &&\
+    deno coverage --include=src .coverage --lcov --output=.coverage/coverage.lcov &&\
+    genhtml -o .coverage .coverage/coverage.lcov &&\
+    rm -f .coverage/.json
+fi
 ret=$?
 
 echo "🚀 stopping mock server"
 kill $pid
+
+duration=$SECONDS
+echo -e "${CbgWhite}${Cbold}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.${Creset}"
 
 exit $ret

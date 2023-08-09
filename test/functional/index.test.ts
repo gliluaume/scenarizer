@@ -38,6 +38,8 @@ const testSuite = [
   { tag: "matcher-syntax-error", err: "Invalid matcher syntax" },
   { tag: "scenario", err: null },
   { tag: "stop-on-failure", err: 1 },
+  { tag: "stop-on-failure", err: 1 },
+  { tag: "score-thresholds-verbs-ok", err: null },
 ];
 
 await testSuite.forEach(async ({ tag, err }) => {

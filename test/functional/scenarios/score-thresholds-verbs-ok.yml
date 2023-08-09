@@ -1,0 +1,36 @@
+init:
+  score:
+    swagger: http://localhost:3002/json-doc
+    level: verb
+    threshold: 66
+
+
+  actions:
+    - updateContext:
+        settings:
+          continue: true
+        baseUrl: http://localhost:3002
+steps:
+  pets:
+    label: crud pets
+    actions:
+      - request:
+          endpoint: /pets
+          method: GET
+          expect:
+            status: 200
+      - request:
+          endpoint: /pets
+          method: POST
+          expect:
+            status: 201
+      - request:
+          endpoint: /pets
+          method: PATCH
+          expect:
+            status: 200
+      - request:
+          endpoint: /pets
+          method: DELETE
+          expect:
+            status: 200
